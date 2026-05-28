@@ -23,7 +23,7 @@ import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
 
-from metric.accuracy import accuracy
+from metrics.accuracy import accuracy
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
