@@ -10,7 +10,7 @@ import torch.optim as optim
 from sklearn.utils.class_weight import compute_class_weight
 
 from utils.trainer import Trainer
-from models.pretrain_models.mobilenetv3small import model
+from models.pretrain_models.mobilenetv3smallv1 import model
 
 
 def set_seed(seed=42):
@@ -82,7 +82,7 @@ trainer = Trainer(
         / "checkpoints"
         / "plantdoc"
         / "pretrain_models"
-        / "mobilenetv3small_torchvision"
+        / "mobilenetv3small_timm"
         / f"seed_{args.seed}"
     )
 )
