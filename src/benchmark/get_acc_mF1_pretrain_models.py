@@ -10,7 +10,7 @@ import torch.nn as nn
 from sklearn.metrics import accuracy_score, f1_score
 from torch.utils.data import DataLoader
 
-from models.non_pretrain_models.model_registry import MODEL_REGISTRY
+from models.pretrain_models.model_registry import MODEL_REGISTRY
 from datasets.plantdoc_dataset import test_dataset
 
 
@@ -22,7 +22,7 @@ logging.basicConfig(
 )
 
 
-class GetAccvsMacroF1NonPretrain:
+class GetAccvsMacroF1Pretrain:
     def __init__(
         self,
         dataset_name: str,
@@ -208,7 +208,7 @@ def main() -> None:
     parser.add_argument("--export_csv", action="store_true", help="Export results to CSV")
     args = parser.parse_args()
 
-    evaluator = GetAccvsMacroF1NonPretrain(
+    evaluator = GetAccvsMacroF1Pretrain(
         dataset_name=args.dataset_name,
         type_model=args.type_model,
         model_name=args.model_name,
