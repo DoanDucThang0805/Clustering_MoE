@@ -12,7 +12,7 @@ class KMeansClustering:
     def __init__(
         self,
         n_clusters: int,
-        max_iter: int = 300,
+        max_iter: int = 500,
         n_init: int = 20,
         random_state: int = 42,
     ):
