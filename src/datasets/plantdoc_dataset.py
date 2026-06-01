@@ -4,6 +4,7 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 from collections import Counter
 
+
 cropped_data_path = Path(__file__).resolve().parents[2] / 'data' / 'tomato-plantdoc-mod'
 
 # Augmentation cho tập huấn luyện
@@ -69,6 +70,15 @@ test_transform = A.Compose([
     ToTensorV2()  # Thay cho transforms.ToTensor()
 ])
 
+extract_embeddings_transform = A.Compose([
+    A.Resize(height=224, width=224),
+    A.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
+    ),
+    ToTensorV2()
+])
+
 train_dataset = LoadDataset(
     root_dir=cropped_data_path,
     split='train',
@@ -90,10 +100,37 @@ test_dataset = LoadDataset(
     transform=test_transform
 )
 
+extract_train_embedding_dataset = LoadDataset(
+    root_dir=cropped_data_path,
+    split='train',
+    train_ratio=0.8,
+    transform=extract_embeddings_transform
+)
+
+extract_validation_embedding_dataset = LoadDataset(
+    root_dir=cropped_data_path,
+    split='validation',
+    train_ratio=0.8,
+    transform=extract_embeddings_transform
+)
+
+extract_test_embedding_dataset = LoadDataset(
+    root_dir=cropped_data_path,
+    split='test',
+    train_ratio=0.8,
+    transform=extract_embeddings_transform
+)
+
 print(f"Train size: {len(train_dataset)}")
 print(f"Validation size: {len(validation_dataset)}")
 print(f"Test size: {len(test_dataset)}")
+print(f"Extract Train Embedding size: {len(extract_train_embedding_dataset)}")
+print(f"Extract Validation Embedding size: {len(extract_validation_embedding_dataset)}")
+print(f"Extract Test Embedding size: {len(extract_test_embedding_dataset)}")
 print(f"Numbers of train labels: {Counter(train_dataset.labels)}")
 print(f"Numbers of validation labels: {Counter(validation_dataset.labels)}")
 print(f"Numbers of test labels: {Counter(test_dataset.labels)}")
+print(f"Numbers of train embedding labels: {Counter(extract_train_embedding_dataset.labels)}")
+print(f"Numbers of validation embedding labels: {Counter(extract_validation_embedding_dataset.labels)}")
+print(f"Numbers of test embedding labels: {Counter(extract_test_embedding_dataset.labels)}")
 print(train_dataset.class_to_idx)
