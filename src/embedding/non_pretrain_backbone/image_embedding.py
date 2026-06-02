@@ -34,13 +34,14 @@ class TimmBackbone(nn.Module):
         self.bn1         = model.bn1
         self.blocks      = model.blocks
         self.global_pool = model.global_pool
-
+        self.flatten     = nn.Flatten(1)
 
     def forward(self, x):
         x = self.conv_stem(x)
         x = self.bn1(x)
         x = self.blocks(x)
-        x = self.global_pool(x)   # timm SelectAdaptivePool2d đã flatten → (B, C)
+        x = self.global_pool(x)
+        x = self.flatten(x)
         return x
 
 
