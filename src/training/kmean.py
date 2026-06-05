@@ -7,7 +7,7 @@ import argparse
 import numpy as np
 from sklearn.preprocessing import normalize
 from models.clustering_models.kmean import KMeansClustering
-np.random.seed(42)
+
 
 def build_cluster_to_class_count(
     cluster_assignments: np.ndarray,
@@ -175,7 +175,7 @@ def main():
     model_name = "kmeans"
     seed = args.seed
     cluster_list = args.num_clusters
-
+    np.random.seed(seed)
     # ==========================================
     # Load train embeddings
     # ==========================================
