@@ -1,9 +1,13 @@
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
 from pathlib import Path
 import argparse
 import numpy as np
 from sklearn.preprocessing import normalize
 from models.clustering_models.kmean import KMeansClustering
-
+np.random.seed(42)
 
 def build_cluster_to_class_count(
     cluster_assignments: np.ndarray,

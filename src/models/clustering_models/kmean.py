@@ -1,5 +1,8 @@
 from __future__ import annotations
-
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
 from pathlib import Path
 
 import joblib
@@ -21,6 +24,7 @@ class KMeansClustering:
             max_iter=max_iter,
             n_init=n_init,
             random_state=random_state,
+            algorithm="lloyd"
         )
     
 
