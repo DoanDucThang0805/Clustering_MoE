@@ -1,6 +1,7 @@
 from pathlib import Path
 import argparse
 import numpy as np
+from sklearn.preprocessing import normalize
 from models.clustering_models.kmean import KMeansClustering
 
 
@@ -55,6 +56,7 @@ def save_cluster_file(
         cluster_assignments=cluster_assignments,
         cluster_to_class_count=cluster_to_class_count,
         method="kmeans",
+        normalize="l2",
         num_clusters=num_clusters,
         seed=seed,
     )
@@ -139,6 +141,11 @@ def main():
         help="Type of model: non_pretrain_models or pretrain_models (default: non_pretrain_models)",
     )
     parser.add_argument(
+        "--backbone_type",
+        type=str,
+        help="Type of backbone: non_pretrain_backbone, pretrain_backbone (default: non_pretrain_backbone)",
+    )
+    parser.add_argument(
         "--backbone_name",
         type=str,
         default="mobilenetv3small_torchvision",
@@ -166,6 +173,7 @@ def main():
 
     dataset_name = args.dataset_name
     model_type = args.type_model
+    backbone_type = args.backbone_type
     backbone_name = args.backbone_name
     model_name = "kmeans"
     seed = args.seed
@@ -179,7 +187,7 @@ def main():
         root_embedding_feature_dir
         / dataset_name
         / model_type
-        / backbone_name
+        / f"{backbone_name}_backbone"
         / f"seed_{seed}"
         / f"features_train_seed{seed}.npz"
     )
@@ -190,6 +198,7 @@ def main():
     data = np.load(feature_file)
 
     features = data["features"]
+    features = normalize(features, norm="l2", axis=1)
     labels = data["labels"]
 
     print(f"Features shape: {features.shape}")
@@ -202,7 +211,7 @@ def main():
     output_dir = (
         Path(__file__).parents[2] / "clustering_results"
         / dataset_name
-        / model_type
+        / backbone_type
         / f'{backbone_name}_backbone'
         / model_name
         / f"seed_{seed}"
