@@ -13,7 +13,7 @@ from datasets.plantdoc_dataset import (
     extract_validation_embedding_dataset,
     extract_test_embedding_dataset,
 )
-from models.non_pretrain_baseline.model_registry import MODEL_REGISTRY
+from models.pretrain_baseline.model_registry import MODEL_REGISTRY
 
 
 class TorchvisionBackbone(nn.Module):
@@ -208,3 +208,4 @@ def main():
 if __name__ == "__main__":
     print(ROOT_CHECKPOINT_DIR)
     main()
+    

@@ -16,8 +16,8 @@ set -e  # dừng ngay nếu có lỗi
 # ─────────────────────────────────────────────
 DATASET_NAME="plantdoc"
 MODEL_NAME="mobilenetv3small_torchvision"   # hoặc mobilenetv3small_timm
-TYPE_MODEL="non_pretrain_models"                 # hoặc pretrain_models
-RUN_TIME="run_20260531-135935"                           # tên folder timestamp trong seed dir
+TYPE_MODEL="pretrain_baseline"                 # hoặc pretrain_baseline
+RUN_TIME="run_20260528-211743"                           # tên folder timestamp trong seed dir
 SPLIT="all"                                 # train | validation | test | all
 SEED=46
 BATCH_SIZE=64
@@ -60,7 +60,7 @@ echo "============================================="
 # Run
 # ─────────────────────────────────────────────
 cd src
-python -m embedding.non_pretrain_backbone.image_embedding \
+python -m embedding.pretrain_backbone.image_embedding \
     --dataset_name "$DATASET_NAME" \
     --model_name   "$MODEL_NAME"   \
     --type_model   "$TYPE_MODEL"   \

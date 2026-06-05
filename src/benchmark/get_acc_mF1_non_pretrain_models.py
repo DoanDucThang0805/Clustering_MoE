@@ -10,7 +10,7 @@ import torch.nn as nn
 from sklearn.metrics import accuracy_score, f1_score
 from torch.utils.data import DataLoader
 
-from models.non_pretrain_models.model_registry import MODEL_REGISTRY
+from models.non_pretrain_baseline.model_registry import MODEL_REGISTRY
 from datasets.plantdoc_dataset import test_dataset
 
 

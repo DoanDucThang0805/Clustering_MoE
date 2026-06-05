@@ -10,7 +10,7 @@ import torch.optim as optim
 from sklearn.utils.class_weight import compute_class_weight
 
 from utils.trainer import Trainer
-from models.pretrain_models.mobilenetv3smallv2 import model
+from models.pretrain_baseline.mobilenetv3smallv2 import model
 
 
 def set_seed(seed=42):

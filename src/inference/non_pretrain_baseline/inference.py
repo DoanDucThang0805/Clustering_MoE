@@ -10,7 +10,7 @@ import seaborn as sns
 import pandas as pd
 
 from datasets.plantdoc_dataset import test_dataset
-from models.pretrain_models.model_registry import MODEL_REGISTRY
+from models.non_pretrain_baseline.model_registry import MODEL_REGISTRY
 
 
 ROOT_CHECKPOINT_DIR = Path(__file__).parents[3] / "checkpoints"
