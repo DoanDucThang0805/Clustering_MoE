@@ -135,12 +135,6 @@ def main():
         help="Name of the dataset (default: plantdoc)",
     )
     parser.add_argument(
-        "--type_model",
-        type=str,
-        default="non_pretrain_models",
-        help="Type of model: non_pretrain_models or pretrain_models (default: non_pretrain_models)",
-    )
-    parser.add_argument(
         "--backbone_type",
         type=str,
         help="Type of backbone: non_pretrain_backbone, pretrain_backbone (default: non_pretrain_backbone)",
@@ -172,7 +166,6 @@ def main():
     # ==========================================
 
     dataset_name = args.dataset_name
-    model_type = args.type_model
     backbone_type = args.backbone_type
     backbone_name = args.backbone_name
     model_name = "kmeans"
@@ -186,7 +179,7 @@ def main():
     feature_file = (
         root_embedding_feature_dir
         / dataset_name
-        / model_type
+        / backbone_type
         / f"{backbone_name}_backbone"
         / f"seed_{seed}"
         / f"features_train_seed{seed}.npz"
