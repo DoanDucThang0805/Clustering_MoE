@@ -2,10 +2,12 @@ import os
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
+
 from pathlib import Path
 import argparse
 import numpy as np
 from sklearn.preprocessing import normalize
+
 from models.clustering_models.kmean import KMeansClustering
 
 
@@ -14,12 +16,6 @@ def build_cluster_to_class_count(
     labels: np.ndarray,
     num_clusters: int,
 ) -> np.ndarray:
-    """
-    Build cluster-to-class statistics matrix.
-
-    Shape:
-        (num_clusters, num_classes)
-    """
 
     num_classes = len(np.unique(labels))
 
@@ -47,11 +43,18 @@ def save_cluster_file(
     cluster_to_class_count: np.ndarray,
     num_clusters: int,
     seed: int,
+    metric: str,
 ) -> None:
 
     output_path.parent.mkdir(
         parents=True,
         exist_ok=True,
+    )
+
+    normalize_method = (
+        "l2"
+        if metric == "cosine"
+        else "none"
     )
 
     np.savez_compressed(
@@ -60,7 +63,8 @@ def save_cluster_file(
         cluster_assignments=cluster_assignments,
         cluster_to_class_count=cluster_to_class_count,
         method="kmeans",
-        normalize="l2",
+        metric=metric,
+        normalize=normalize_method,
         num_clusters=num_clusters,
         seed=seed,
     )
@@ -72,6 +76,7 @@ def train_kmeans(
     num_clusters: int,
     seed: int,
     output_dir: Path,
+    metric: str,
 ) -> None:
 
     print(f"\nTraining KMeans (G={num_clusters})")
@@ -115,6 +120,7 @@ def train_kmeans(
         cluster_to_class_count=cluster_to_class_count,
         num_clusters=num_clusters,
         seed=seed,
+        metric=metric,
     )
 
     print(
@@ -128,6 +134,7 @@ def train_kmeans(
 
 
 def main():
+
     parser = argparse.ArgumentParser(
         description="Train KMeans clustering model on extracted features"
     )
@@ -136,38 +143,41 @@ def main():
         "--dataset_name",
         type=str,
         default="plantdoc",
-        help="Name of the dataset (default: plantdoc)",
     )
+
     parser.add_argument(
         "--backbone_type",
         type=str,
-        help="Type of backbone: non_pretrain_backbone, pretrain_backbone (default: non_pretrain_backbone)",
+        required=True,
     )
+
     parser.add_argument(
         "--backbone_name",
         type=str,
         default="mobilenetv3small_torchvision",
-        help="Name of the backbone model (default: mobilenetv3small_torchvision)",
     )
+
     parser.add_argument(
         "--seed",
         type=int,
         default=42,
-        help="Random seed (default: 42)",
     )
+
     parser.add_argument(
         "--num_clusters",
         type=int,
         nargs="+",
         default=[2, 3, 4, 5, 6, 8],
-        help="Number of clusters to train (default: 2 3 4 5 6 8)",
+    )
+
+    parser.add_argument(
+        "--metric",
+        type=str,
+        choices=["euclidean", "cosine"],
+        required=True,
     )
 
     args = parser.parse_args()
-
-    # ==========================================
-    # Metadata
-    # ==========================================
 
     dataset_name = args.dataset_name
     backbone_type = args.backbone_type
@@ -175,11 +185,15 @@ def main():
     model_name = "kmeans"
     seed = args.seed
     cluster_list = args.num_clusters
+    metric = args.metric
+
     np.random.seed(seed)
-    # ==========================================
-    # Load train embeddings
-    # ==========================================
-    root_embedding_feature_dir = Path(__file__).parents[2] / "feature_embeddings"
+
+    root_embedding_feature_dir = (
+        Path(__file__).parents[2]
+        / "feature_embeddings"
+    )
+
     feature_file = (
         root_embedding_feature_dir
         / dataset_name
@@ -190,33 +204,41 @@ def main():
     )
 
     if not feature_file.exists():
-        raise FileNotFoundError(f"Feature file not found: {feature_file}")
+        raise FileNotFoundError(
+            f"Feature file not found: {feature_file}"
+        )
 
     data = np.load(feature_file)
 
     features = data["features"]
-    features = normalize(features, norm="l2", axis=1)
+
+    if metric == "cosine":
+        features = normalize(
+            features,
+            norm="l2",
+            axis=1,
+        )
+
     labels = data["labels"]
 
-    print(f"Features shape: {features.shape}")
-    print(f"Labels shape:   {labels.shape}")
-
-    # ==========================================
-    # Output directory
-    # ==========================================
-
-    output_dir = (
-        Path(__file__).parents[2] / "clustering_results"
-        / dataset_name
-        / backbone_type
-        / f'{backbone_name}_backbone'
-        / model_name
-        / f"seed_{seed}"
+    print(
+        f"Features shape: {features.shape}"
     )
 
-    # ==========================================
-    # Run clustering
-    # ==========================================
+    print(
+        f"Labels shape: {labels.shape}"
+    )
+
+    output_dir = (
+        Path(__file__).parents[2]
+        / "clustering_results"
+        / dataset_name
+        / backbone_type
+        / f"{backbone_name}_backbone"
+        / model_name
+        / metric
+        / f"seed_{seed}"
+    )
 
     for num_clusters in cluster_list:
 
@@ -226,6 +248,7 @@ def main():
             num_clusters=num_clusters,
             seed=seed,
             output_dir=output_dir,
+            metric=metric,
         )
 
 

@@ -28,7 +28,7 @@ class ClusterPrototypeGating(nn.Module):
         self,
         centroids: torch.Tensor,
         top_k: int,
-        temperature: float = 0.5,
+        temperature: float = 1.0,
         metric: Literal["cosine", "euclidean"] = "cosine",
     ):
         super().__init__()

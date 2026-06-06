@@ -114,10 +114,11 @@ class ClusteringMoEModel(nn.Module):
         top_k: int,
         metric: Literal["cosine", "euclidean"],
         pretrain_backbone: bool,
+        checkpoint_path: Path,
         temperature: float = 1.0,
     ):
         super().__init__()
-        self.backbone = Mobilenetv3SmallBackboneTorchvision(pretrained=pretrain_backbone)
+        self.backbone = Mobilenetv3SmallBackboneTorchvision(pretrained=pretrain_backbone, checkpoint_path=checkpoint_path)
         self.moe_layer = MoELayer(
             centroids   = centroids,
             top_k       = top_k,
