@@ -5,9 +5,10 @@ from typing import Literal
 import numpy as np
 import torch
 import torch.nn as nn
+from torchinfo import summary
 
-from .backbone import Mobilenetv3SmallBackboneTorchvision
 from .cluster_gating import ClusterPrototypeGating
+from .backbone_registry import BACKBONE_REGISTRY
 
 
 class MoELayer(nn.Module):
@@ -112,13 +113,13 @@ class ClusteringMoEModel(nn.Module):
         num_classes: int,
         centroids: torch.Tensor,
         top_k: int,
+        backbone_name: Literal["mobilenetv3small_timm", "mobilenetv3small_torchvision"],
         metric: Literal["cosine", "euclidean"],
         pretrain_backbone: bool,
-        checkpoint_path: Path,
         temperature: float = 1.0,
     ):
         super().__init__()
-        self.backbone = Mobilenetv3SmallBackboneTorchvision(pretrained=pretrain_backbone, checkpoint_path=checkpoint_path)
+        self.backbone = BACKBONE_REGISTRY[backbone_name](pretrained=pretrain_backbone)
         self.moe_layer = MoELayer(
             centroids   = centroids,
             top_k       = top_k,
@@ -150,3 +151,15 @@ class ClusteringMoEModel(nn.Module):
         logits = self.classifier(normalized)
         return logits, weights, top_indices, scores
     
+
+if __name__ == "__main__":
+    model = ClusteringMoEModel(
+        num_classes=8,
+        centroids=torch.randn(4, 576),
+        top_k=1,
+        backbone_name="mobilenetv3small_torchvision",
+        metric="cosine",
+        pretrain_backbone=False,
+        temperature=0.5,
+    )
+    summary(model, input_size=(1, 3, 224, 224))

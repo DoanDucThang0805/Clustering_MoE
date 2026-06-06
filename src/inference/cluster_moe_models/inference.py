@@ -15,8 +15,7 @@ from sklearn.metrics import (
 )
 import seaborn as sns
 
-from models.moe_model.clustering.model import ClusteringMoEModel
-
+from models.clustering_moe.model import ClusteringMoEModel
 
 # ─────────────────────────────────────────────
 # Reproducibility

@@ -13,3 +13,4 @@ opencv-python
 scipy
 pillow
 umap-learn
+onnxscript

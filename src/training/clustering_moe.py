@@ -1,6 +1,7 @@
 from pathlib import Path
 import random
 from argparse import ArgumentParser
+from typing import Literal
 
 import numpy as np
 import torch
@@ -10,8 +11,7 @@ import torch.optim as optim
 from sklearn.utils.class_weight import compute_class_weight
 
 from utils.cluster_moe_trainer import ClusterMoETrainer
-from models.moe_model.clustering.model import ClusteringMoEModel
-
+from models.clustering_moe.model import ClusteringMoEModel
 
 # ─────────────────────────────────────────────
 # Reproducibility
@@ -32,9 +32,10 @@ def set_seed(seed: int = 42) -> None:
 def load_centroids(
     root_dir:    Path,
     dataset_name:str,
-    type_model: str,
+    backbone_type: str,
     backbone_name: str,
-    model_name:  str,
+    model_clustering_name:  str,
+    distance_metric: Literal["cosine", "euclidean"],
     num_experts: int,
     seed:        int,
 ) -> torch.Tensor:
@@ -43,9 +44,10 @@ def load_centroids(
         root_dir
         / "clustering_results"
         / dataset_name
-        / type_model
+        / backbone_type
         / f"{backbone_name}_backbone"
-        / model_name
+        / model_clustering_name
+        / distance_metric
         / f"seed_{seed}"
         / f"clusters_kmeans_G{num_experts}_seed{seed}.npz"
     )
@@ -69,7 +71,7 @@ parser.add_argument("--num_experts", type=int,   default=4,
                     help="G — number of experts / K-means clusters")
 parser.add_argument("--top_k",       type=int,   default=2,
                     help="Number of experts activated per sample")
-parser.add_argument("--metric",      type=str,   default="cosine",
+parser.add_argument("--distance_metric",      type=str,   default="cosine",
                     choices=["cosine", "euclidean"])
 parser.add_argument("--temperature", type=float, default=0.5)
 parser.add_argument("--pretrain_backbone", action="store_true",
@@ -79,10 +81,11 @@ parser.add_argument("--weight_decay",type=float, default=1e-3)
 parser.add_argument("--num_epochs",  type=int,   default=200)
 parser.add_argument("--batch_size",  type=int,   default=64)
 parser.add_argument("--dataset_name", type=str)
-parser.add_argument("--type_model",   type=str)
+parser.add_argument("--backbone_type",   type=str)
 parser.add_argument("--backbone_name",type=str)
-parser.add_argument("--model_name",   type=str)
-
+parser.add_argument("--model_clustering_name",   type=str)
+parser.add_argument("--baseline_type", type=str, choices=["pretrain_baseline", "non_pretrain_baseline"])
+parser.add_argument("--baseline_runtime", type=str, help="eg: run_20261010_123210")
 args = parser.parse_args()
 
 # ─────────────────────────────────────────────
@@ -119,14 +122,15 @@ val_loader = DataLoader(
 # Centroids + Model
 # ─────────────────────────────────────────────
 device   = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-root_dir = Path.cwd().parents[0]
+root_dir = Path(__file__).parents[2]
 
 centroids = load_centroids(
     root_dir     = root_dir,
     dataset_name = args.dataset_name,
-    type_model  = args.type_model,
+    backbone_type  = args.backbone_type,
     backbone_name= args.backbone_name,
-    model_name   = args.model_name,
+    model_clustering_name   = args.model_clustering_name,
+    distance_metric= args.distance_metric,
     num_experts  = args.num_experts,
     seed         = args.seed,
 )
@@ -134,14 +138,28 @@ centroids = load_centroids(
 labels      = train_dataset.labels
 num_classes = len(set(labels))
 
+basline_checkpoint = (
+    Path(__file__).parents[2] 
+    / "checkpoints" 
+    / args.dataset_name 
+    / args.baseline_type
+    / args.backbone_name
+    / f"seed_{args.seed}"
+    / args.baseline_runtime
+    / "best_checkpoint.pth"
+)
+
 model = ClusteringMoEModel(
     num_classes        = num_classes,
     centroids          = centroids,
     top_k              = args.top_k,
-    metric             = args.metric,
+    backbone_name      = args.backbone_name,
+    metric             = args.distance_metric,
     pretrain_backbone  = args.pretrain_backbone,
+    checkpoint_path    = basline_checkpoint,
     temperature        = args.temperature,
 )
+
 
 # ─────────────────────────────────────────────
 # Loss + Optimizer
@@ -168,9 +186,10 @@ checkpoint_dir = str(
     root_dir
     / "checkpoints"
     / args.dataset_name
-    / args.type_model
-    / "cluster_moe"
-    / f"G{args.num_experts}_{args.metric}_top{args.top_k}"
+    / "clustering_moe"
+    / args.backbone_type # eg: non_pretrain_backbone, pretrain_backbone
+    / f"{args.backbone_name}_backbone"
+    / f"G{args.num_experts}_{args.distance_metric}_top{args.top_k}"
     / f"temperature_{args.temperature}"
     / f"seed_{args.seed}"
 )
@@ -199,7 +218,7 @@ if __name__ == "__main__":
     print(f"  seed        : {args.seed}")
     print(f"  num_experts : {args.num_experts}")
     print(f"  top_k       : {args.top_k}")
-    print(f"  metric      : {args.metric}")
+    print(f"  metric      : {args.distance_metric}")
     print(f"  temperature : {args.temperature}")
     print(f"  device      : {device}")
     print(f"  checkpoint  : {checkpoint_dir}")
