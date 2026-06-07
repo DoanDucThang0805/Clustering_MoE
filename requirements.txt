@@ -15,3 +15,6 @@ pillow
 umap-learn
 onnxscript
 thop
+onnxruntime
+psutil
+memory_profiler
