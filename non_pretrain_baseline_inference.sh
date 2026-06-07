@@ -37,6 +37,11 @@ python -m inference.non_pretrain_baseline.inference \
     --run_time "run_20260531-135935"
 
 
+
+#######################################################
+
+
+
 python -m inference.non_pretrain_baseline.inference \
     --dataset_name "plantdoc" \
     --type_model "non_pretrain_baseline" \
