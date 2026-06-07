@@ -1,5 +1,5 @@
 """
-Training Module for Clustering MoE Plant Disease Classification.
+Training Module for Hybrid MoE Plant Disease Classification.
 """
 
 import os
@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class ClusterMoETrainer:
+class HybridMoETrainer:
 
     def __init__(
         self,
@@ -121,6 +121,10 @@ class ClusterMoETrainer:
                 "top_k":               self.model.moe_layer.top_k,
                 "temperature":         self.model.moe_layer.gating.temperature,
                 "metric":              self.model.moe_layer.gating.metric,
+                "context_dim":         self.model.context_dim,
+                "lambda_":             self.model.moe_layer.gating.lambda_,
+                "noise_stddev":        self.model.moe_layer.gating.noise_stddev,
+                "context_proj_dim":    self.model.moe_layer.context_proj_dim,
             },
             path,
         )
@@ -160,14 +164,15 @@ class ClusterMoETrainer:
             train_running_loss    = 0.0
             train_running_correct = 0.0
 
-            for images, labels in self.train_loader:
+            for images, labels, contexts in self.train_loader:
 
                 images = images.to(self.device)
                 labels = labels.to(self.device)
+                contexts = contexts.to(self.device)
 
                 self.optimizer.zero_grad(set_to_none=True)
 
-                logits, _, top_indices, _ = self.model(images)
+                logits, _, top_indices, _ = self.model(images, contexts)
 
                 loss = self.criterion(logits, labels)
 
@@ -215,12 +220,13 @@ class ClusterMoETrainer:
 
             with torch.inference_mode():
 
-                for images, labels in self.val_loader:
+                for images, labels, contexts in self.val_loader:
 
                     images = images.to(self.device)
                     labels = labels.to(self.device)
+                    contexts = contexts.to(self.device)
 
-                    logits, _, top_indices, _ = self.model(images)
+                    logits, _, top_indices, _ = self.model(images, contexts)
 
                     loss = self.criterion(logits, labels)
 

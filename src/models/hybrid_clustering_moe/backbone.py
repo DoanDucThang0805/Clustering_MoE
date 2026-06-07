@@ -8,6 +8,8 @@ class Mobilenetv3SmallBackboneTorchvision(nn.Module):
     def __init__(self, pretrained: bool):
         super().__init__()
         self.pretrained = pretrained
+        self.output_dim = 576
+
         if self.pretrained:
             self.model=models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.IMAGENET1K_V1),
         else:
@@ -24,6 +26,7 @@ class Mobilenetv3SmallBackboneTorchvision(nn.Module):
 class Mobilenetv3SmallBackboneTimm(nn.Module):
     def __init__(self, pretrained: bool):
         super().__init__()
+        self.output_dim = 576
         self.model = timm.create_model(
             model_name  = "mobilenetv3_small_100.lamb_in1k",
             pretrained  = pretrained,

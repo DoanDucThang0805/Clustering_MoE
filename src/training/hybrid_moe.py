@@ -11,7 +11,7 @@ import torch.optim as optim
 from sklearn.utils.class_weight import compute_class_weight
 
 from utils.cluster_moe_trainer import ClusterMoETrainer
-from models.clustering_moe.model import ClusteringMoEModel
+from models.hybrid_clustering_moe.model import HybridMoEModel
 
 # ─────────────────────────────────────────────
 # Reproducibility
@@ -84,6 +84,7 @@ parser.add_argument("--dataset_name", type=str)
 parser.add_argument("--backbone_type",   type=str)
 parser.add_argument("--backbone_name",type=str)
 parser.add_argument("--model_clustering_name",   type=str)
+parser.add_argument("--lambda_", type=float, required=True)
 args = parser.parse_args()
 
 # ─────────────────────────────────────────────
@@ -91,13 +92,15 @@ args = parser.parse_args()
 # ─────────────────────────────────────────────
 set_seed(args.seed)
 
-from datasets.plantdoc_dataset import train_dataset, validation_dataset
+from datasets.plantdoc_dataset_moe import build_datasets
 
 # ─────────────────────────────────────────────
 # DataLoaders
 # ─────────────────────────────────────────────
 generator = torch.Generator()
 generator.manual_seed(args.seed)
+
+train_dataset, validation_dataset, _ = build_datasets(use_context=True)
 
 train_loader = DataLoader(
     train_dataset,
@@ -136,14 +139,19 @@ centroids = load_centroids(
 labels      = train_dataset.labels
 num_classes = len(set(labels))
 
-model = ClusteringMoEModel(
-    num_classes        = num_classes,
-    centroids          = centroids,
-    top_k              = args.top_k,
-    backbone_name      = args.backbone_name,
-    metric             = args.distance_metric,
-    pretrain_backbone  = args.pretrain_backbone,
-    temperature        = args.temperature,
+model = HybridMoEModel(
+    num_classes=num_classes,
+    context_dim=6,
+    num_experts=args.num_experts,
+    centroids=centroids,
+    top_k=args.top_k,
+    backbone_name=args.backbone_name,
+    pretrain_backbone=args.pretrain_backbone,
+    lambda_=args.lambda_,
+    temperature=args.temperature,
+    metric=args.distance_metric,
+    noise_stddev=1.0,
+    context_proj_dim=32
 )
 
 
@@ -172,7 +180,7 @@ checkpoint_dir = str(
     root_dir
     / "checkpoints"
     / args.dataset_name
-    / "clustering_moe"
+    / "hybrid_moe"
     / args.backbone_type # eg: non_pretrain_backbone, pretrain_backbone
     / f"{args.backbone_name}_backbone"
     / args.model_clustering_name

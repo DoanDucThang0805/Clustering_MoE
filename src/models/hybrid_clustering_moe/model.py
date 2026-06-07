@@ -87,7 +87,6 @@ class HybridMoEModel(nn.Module):
     def __init__(
         self,
         num_classes: int,
-        model_dim: int,
         context_dim: int,
         num_experts: int,
         centroids: torch.Tensor,
@@ -103,7 +102,6 @@ class HybridMoEModel(nn.Module):
         super().__init__()
 
         self.num_classes = num_classes
-        self.model_dim = model_dim
         self.context_dim = context_dim
         self.num_experts = num_experts
         self.centroids = centroids
@@ -117,9 +115,10 @@ class HybridMoEModel(nn.Module):
         self.pretrain_backbone = pretrain_backbone
 
         self.backbone = BACKBONE_REGISTRY[backbone_name](pretrain_backbone)
-        # num_classes chưa có trong __init__ — cần thêm vào signature
+        self.model_dim = self.backbone.output_dim
+
         self.moe_layer = MoeLayer(
-            model_dim        = model_dim,
+            model_dim        = self.model_dim,
             context_dim      = context_dim,
             num_experts      = num_experts,
             centroids        = centroids,
@@ -131,10 +130,10 @@ class HybridMoEModel(nn.Module):
             metric           = metric,
         )
 
-        self.norm = nn.LayerNorm(model_dim)
+        self.norm = nn.LayerNorm(self.model_dim)
 
         self.classifier = nn.Sequential(
-            nn.Linear(model_dim, 256),
+            nn.Linear(self.model_dim, 256),
             nn.LayerNorm(256),
             nn.GELU(),
             nn.Dropout(0.2),
@@ -188,7 +187,6 @@ if __name__ == "__main__":
 
     model = HybridMoEModel(
         num_classes      = 8,
-        model_dim        = 576,
         context_dim      = 6,
         num_experts      = 4,
         centroids        = dummy_centroids,

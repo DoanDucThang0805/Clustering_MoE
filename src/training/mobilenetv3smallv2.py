@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.optim as optim
 from sklearn.utils.class_weight import compute_class_weight
 
-from utils.trainer import Trainer
+from utils.baseline_trainer import Trainer
 from models.pretrain_baseline.mobilenetv3smallv2 import model
 
 

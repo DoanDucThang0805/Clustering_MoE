@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Cluster MoE Training Script
-# This script trains the ClusteringMoEModel with specified parameters
+# Hybrid MoE Training Script
+# This script trains the HybridMoEModel with specified parameters
 
 set -e
 clear
@@ -16,7 +16,7 @@ BACKBONE_NAME="mobilenetv3small_torchvision"
 MODEL_CLUSTERING_NAME="kmeans"
 
 # Training Hyperparameters
-SEED=45
+SEED=43
 NUM_EXPERTS=4
 TOP_K=2
 METRIC="cosine"  # choices: ["cosine", "euclidean"]
@@ -26,10 +26,11 @@ PRETRAIN_BACKBONE=false
 # Optimizer Configuration
 LR=1e-3
 WEIGHT_DECAY=1e-3
+LAMBDA=1.0
 
 # Training Settings
 NUM_EPOCHS=400
-BATCH_SIZE=32
+BATCH_SIZE=64
 
 # ─────────────────────────────────────────────
 # Get Script Directory
@@ -48,24 +49,27 @@ fi
 # Run Training
 # ─────────────────────────────────────────────
 echo "========================================"
-echo "  Starting ClusteringMoE Training"
+echo "  Starting Hybrid MoE Training"
 echo "========================================"
-echo "Dataset:        $DATASET_NAME"
-echo "Backbone Type:  $BACKBONE_TYPE"
-echo "Backbone:       $BACKBONE_NAME"
+echo "Dataset:          $DATASET_NAME"
+echo "Backbone Type:    $BACKBONE_TYPE"
+echo "Backbone:         $BACKBONE_NAME"
 echo "Model Clustering: $MODEL_CLUSTERING_NAME"
-echo "Seed:           $SEED"
-echo "Num Experts:    $NUM_EXPERTS"
-echo "Top K:          $TOP_K"
-echo "Metric:         $METRIC"
-echo "Temperature:    $TEMPERATURE"
-echo "Learning Rate:  $LR"
-echo "Batch Size:     $BATCH_SIZE"
-echo "Epochs:         $NUM_EPOCHS"
+echo "Seed:             $SEED"
+echo "Num Experts:      $NUM_EXPERTS"
+echo "Top K:            $TOP_K"
+echo "Metric:           $METRIC"
+echo "Temperature:      $TEMPERATURE"
+echo "Pretrain Backbone: $PRETRAIN_BACKBONE"
+echo "Learning Rate:    $LR"
+echo "Weight Decay:     $WEIGHT_DECAY"
+echo "Lambda:           $LAMBDA"
+echo "Batch Size:       $BATCH_SIZE"
+echo "Epochs:           $NUM_EPOCHS"
 echo "========================================"
 
 cd src
-python -m training.clustering_moe \
+python -m training.hybrid_moe \
     --seed "$SEED" \
     --num_experts "$NUM_EXPERTS" \
     --top_k "$TOP_K" \
@@ -79,6 +83,7 @@ python -m training.clustering_moe \
     --backbone_type "$BACKBONE_TYPE" \
     --backbone_name "$BACKBONE_NAME" \
     --model_clustering_name "$MODEL_CLUSTERING_NAME" \
+    --lambda_ "$LAMBDA" \
     $([ "$PRETRAIN_BACKBONE" = true ] && echo "--pretrain_backbone")
 
 echo "========================================"
