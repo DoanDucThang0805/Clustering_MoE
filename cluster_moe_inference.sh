@@ -11,7 +11,7 @@ BACKBONE_TYPE="non_pretrain_backbone"
 BACKBONE_NAME="mobilenetv3small_torchvision"
 MODEL_CLUSTERING_NAME="kmeans"
 
-SEED=43
+SEED=46
 NUM_EXPERTS=4
 TOP_K=2
 METRIC="cosine"
@@ -20,7 +20,7 @@ PRETRAIN_BACKBONE=false
 
 BATCH_SIZE=64
 CHECKPOINT="best_checkpoint.pth"
-RUN_TIME="run_20260607-230700"
+RUN_TIME="run_20260608-002859"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"

@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.optim as optim
 from sklearn.utils.class_weight import compute_class_weight
 
+from loss.loss_fn import MoELoss
 from utils.cluster_moe_trainer import ClusterMoETrainer
 from models.hybrid_clustering_moe.model import HybridMoEModel
 
@@ -85,6 +86,7 @@ parser.add_argument("--backbone_type",   type=str)
 parser.add_argument("--backbone_name",type=str)
 parser.add_argument("--model_clustering_name",   type=str)
 parser.add_argument("--lambda_", type=float, required=True)
+parser.add_argument("--moe_alpha", type=float, required=True, help="auxilirity coefficient for MoE Routing")
 args = parser.parse_args()
 
 # ─────────────────────────────────────────────
@@ -163,8 +165,11 @@ class_weights = compute_class_weight(
     classes      = np.arange(num_classes),
     y            = labels,
 )
-criterion = nn.CrossEntropyLoss(
-    weight = torch.tensor(class_weights, dtype=torch.float32).to(device)
+class_weights = torch.tensor(class_weights, dtype=torch.float32).to(device)
+
+criterion = MoELoss(
+    alpha=args.moe_alpha,
+    class_weights=class_weights
 )
 
 optimizer = optim.AdamW(

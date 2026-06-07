@@ -172,9 +172,9 @@ class HybridMoETrainer:
 
                 self.optimizer.zero_grad(set_to_none=True)
 
-                logits, _, top_indices, _ = self.model(images, contexts)
+                logits, weights, top_indices, hybrid_logits = self.model(images, contexts)
 
-                loss = self.criterion(logits, labels)
+                loss = self.criterion(logits, labels, hybrid_logits, top_indices)
 
                 loss.backward()
 
@@ -226,9 +226,9 @@ class HybridMoETrainer:
                     labels = labels.to(self.device)
                     contexts = contexts.to(self.device)
 
-                    logits, _, top_indices, _ = self.model(images, contexts)
+                    logits, weights, top_indices, hybrid_logits = self.model(images, contexts)
 
-                    loss = self.criterion(logits, labels)
+                    loss = self.criterion(logits, labels, hybrid_logits, top_indices)
 
                     probs = torch.softmax(logits, dim=1)
                     preds = torch.argmax(probs, dim=1)
