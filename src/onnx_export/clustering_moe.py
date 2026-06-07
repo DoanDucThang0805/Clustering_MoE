@@ -83,7 +83,6 @@ model = ClusteringMoEModel(
     backbone_name="mobilenetv3small_torchvision",
     metric="cosine",
     pretrain_backbone=False,
-    checkpoint_path=Path("/media/data/minhht/clustering_moe/checkpoints/plantdoc/non_pretrain_baseline/mobilenetv3small_torchvision/seed_42/run_20260531-135810/best_checkpoint.pth"),
     temperature=1.0,
 )
 

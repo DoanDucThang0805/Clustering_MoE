@@ -118,13 +118,11 @@ class ClusteringMoEModel(nn.Module):
         backbone_name:     Literal["mobilenetv3small_timm", "mobilenetv3small_torchvision"],
         metric:            Literal["cosine", "euclidean"],
         pretrain_backbone: bool,
-        checkpoint_path:   Path,
         temperature:       float = 1.0,
     ):
         super().__init__()
         self.backbone = BACKBONE_REGISTRY[backbone_name](
             pretrained      = pretrain_backbone,
-            checkpoint_path = checkpoint_path,
         )
         self.moe_layer = MoELayer(
             centroids   = centroids,
@@ -156,3 +154,22 @@ class ClusteringMoEModel(nn.Module):
         normalized = self.norm(residual)
         logits     = self.classifier(normalized)
         return logits, weights, top_indices, scores
+
+
+if __name__ == "__main__":
+    from torchinfo import summary
+
+    dummy_input     = torch.rand(1, 3, 224, 224)
+    dummy_centroids = torch.randn(4, 576)
+
+    model = ClusteringMoEModel(
+        num_classes       = 8,
+        centroids         = dummy_centroids,
+        top_k             = 2,
+        backbone_name     = "mobilenetv3small_torchvision",
+        metric            = "cosine",
+        pretrain_backbone = False,
+        temperature       = 0.5,
+    )
+    summary(model, input_data=[dummy_input])
+    
