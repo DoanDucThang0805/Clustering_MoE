@@ -6,12 +6,12 @@
 set -euo pipefail
 
 # Defaults (match src/training/moe.py)
-SEED=42
+SEED=46
 TYPE_MODEL="moe_temperature_0.5"
 NUM_EXPERTS=4
 TOP_K=2
 NUM_EPOCHS=400
-BATCH_SIZE=32
+BATCH_SIZE=64
 LR=0.001
 WEIGHT_DECAY=0.001
 MOE_ALPHA=0.05

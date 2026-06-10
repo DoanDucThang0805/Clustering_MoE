@@ -76,11 +76,13 @@ def build_checkpoint_path(root_dir: Path, args: Namespace) -> Path:
         root_dir
         / "checkpoints"
         / args.dataset_name
-        / args.backbone_type
         / "hybrid_moe"
-        / f"G{args.num_experts}_{args.metric}_top{args.top_k}"
+        / args.backbone_type
+        / f"{args.backbone_name}_backbone"
+        / args.model_clustering_name
         / f"lambda_{args.lambda_}"
         / f"temperature_{args.temperature}"
+        / f"G{args.num_experts}_{args.metric}_top{args.top_k}"
         / f"seed_{args.seed}"
         / args.runtime
         / args.checkpoint
@@ -94,11 +96,11 @@ def build_output_dir(root_dir: Path, args: Namespace, ckpt: dict) -> Path:
         / args.dataset_name
         / "hybrid_moe_model"
         / args.backbone_type
-        / args.backbone_name
+        / f"{args.backbone_name}_backbone"
         / args.model_clustering_name
-        / f"G{ckpt['num_experts']}_{ckpt['metric']}_top{ckpt['top_k']}"
         / f"lambda_{ckpt['lambda_']}"
         / f"temperature_{ckpt['temperature']}"
+        / f"G{ckpt['num_experts']}_{ckpt['metric']}_top{ckpt['top_k']}"
         / f"seed_{args.seed}"
         / args.runtime
     )
@@ -114,7 +116,6 @@ def load_model(
 ) -> HybridMoEModel:
     model = HybridMoEModel(
         num_classes       = ckpt["num_classes"],
-        model_dim         = centroids.shape[1],
         context_dim       = ckpt["context_dim"],
         num_experts       = ckpt["num_experts"],
         centroids         = centroids,
@@ -290,8 +291,9 @@ def main() -> None:
     print("=" * 60)
 
     # ── Dataset ──────────────────────────────────────────────
-    from datasets.plantdoc_dataset import test_dataset
+    from datasets.plantdoc_dataset_moe import build_datasets
 
+    _, _, test_dataset = build_datasets(use_context=True)
     test_loader = DataLoader(
         test_dataset,
         batch_size  = args.batch_size,

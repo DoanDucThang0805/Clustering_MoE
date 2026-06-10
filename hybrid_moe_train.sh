@@ -1,91 +1,90 @@
 #!/bin/bash
 
-# Hybrid MoE Training Script
-# This script trains the HybridMoEModel with specified parameters
-
 set -e
 clear
-# ─────────────────────────────────────────────
-# Configuration
-# ─────────────────────────────────────────────
 
-# Model and Data Configuration
+# ==========================================================
+# Common Config
+# ==========================================================
 DATASET_NAME="plantdoc"
 BACKBONE_TYPE="non_pretrain_backbone"
 BACKBONE_NAME="mobilenetv3small_torchvision"
 MODEL_CLUSTERING_NAME="kmeans"
 
-# Training Hyperparameters
-SEED=43
 NUM_EXPERTS=4
 TOP_K=2
-METRIC="cosine"  # choices: ["cosine", "euclidean"]
+METRIC="cosine"
 TEMPERATURE=0.5
 PRETRAIN_BACKBONE=false
 
-# Optimizer Configuration
 LR=1e-3
 WEIGHT_DECAY=1e-3
-LAMBDA=1.0
+LAMBDA=0.5
+MOE_ALPHA=0.05
 
-# Training Settings
 NUM_EPOCHS=400
 BATCH_SIZE=64
 
-# ─────────────────────────────────────────────
-# Get Script Directory
-# ─────────────────────────────────────────────
+# ==========================================================
+# Paths
+# ==========================================================
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-# ─────────────────────────────────────────────
-# Activate Virtual Environment
-# ─────────────────────────────────────────────
 if [ -d "venv" ]; then
     source venv/bin/activate
 fi
 
-# ─────────────────────────────────────────────
-# Run Training
-# ─────────────────────────────────────────────
-echo "========================================"
-echo "  Starting Hybrid MoE Training"
-echo "========================================"
-echo "Dataset:          $DATASET_NAME"
-echo "Backbone Type:    $BACKBONE_TYPE"
-echo "Backbone:         $BACKBONE_NAME"
-echo "Model Clustering: $MODEL_CLUSTERING_NAME"
-echo "Seed:             $SEED"
-echo "Num Experts:      $NUM_EXPERTS"
-echo "Top K:            $TOP_K"
-echo "Metric:           $METRIC"
-echo "Temperature:      $TEMPERATURE"
-echo "Pretrain Backbone: $PRETRAIN_BACKBONE"
-echo "Learning Rate:    $LR"
-echo "Weight Decay:     $WEIGHT_DECAY"
-echo "Lambda:           $LAMBDA"
-echo "Batch Size:       $BATCH_SIZE"
-echo "Epochs:           $NUM_EPOCHS"
-echo "========================================"
+# ==========================================================
+# Train Function
+# ==========================================================
+train_seed() {
+    local SEED=$1
 
-cd src
-python -m training.hybrid_moe \
-    --seed "$SEED" \
-    --num_experts "$NUM_EXPERTS" \
-    --top_k "$TOP_K" \
-    --distance_metric "$METRIC" \
-    --temperature "$TEMPERATURE" \
-    --lr "$LR" \
-    --weight_decay "$WEIGHT_DECAY" \
-    --num_epochs "$NUM_EPOCHS" \
-    --batch_size "$BATCH_SIZE" \
-    --dataset_name "$DATASET_NAME" \
-    --backbone_type "$BACKBONE_TYPE" \
-    --backbone_name "$BACKBONE_NAME" \
-    --model_clustering_name "$MODEL_CLUSTERING_NAME" \
-    --lambda_ "$LAMBDA" \
-    $([ "$PRETRAIN_BACKBONE" = true ] && echo "--pretrain_backbone")
+    echo ""
+    echo "========================================"
+    echo " Training Seed = $SEED"
+    echo "========================================"
 
+    cd "$SCRIPT_DIR/src"
+
+    python -m training.hybrid_moe \
+        --seed "$SEED" \
+        --num_experts "$NUM_EXPERTS" \
+        --top_k "$TOP_K" \
+        --distance_metric "$METRIC" \
+        --temperature "$TEMPERATURE" \
+        --lr "$LR" \
+        --weight_decay "$WEIGHT_DECAY" \
+        --num_epochs "$NUM_EPOCHS" \
+        --batch_size "$BATCH_SIZE" \
+        --dataset_name "$DATASET_NAME" \
+        --backbone_type "$BACKBONE_TYPE" \
+        --backbone_name "$BACKBONE_NAME" \
+        --model_clustering_name "$MODEL_CLUSTERING_NAME" \
+        --lambda_ "$LAMBDA" \
+        --moe_alpha "$MOE_ALPHA" \
+        $([ "$PRETRAIN_BACKBONE" = true ] && echo "--pretrain_backbone")
+
+    cd "$SCRIPT_DIR"
+
+    echo "Finished seed $SEED"
+}
+
+# ==========================================================
+# Run
+# ==========================================================
+
+# Train 1 seed
+# train_seed 42
+
+# Train multiple seeds
+for seed in 43 44 45 46
+do
+    train_seed $seed
+done
+
+echo ""
 echo "========================================"
-echo "  Training Completed"
+echo " All Training Completed"
 echo "========================================"

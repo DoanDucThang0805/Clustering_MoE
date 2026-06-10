@@ -11,7 +11,7 @@ import torch.optim as optim
 from sklearn.utils.class_weight import compute_class_weight
 
 from loss.loss_fn import MoELoss
-from utils.cluster_moe_trainer import ClusterMoETrainer
+from utils.hybrid_moe_trainner import HybridMoETrainer
 from models.hybrid_clustering_moe.model import HybridMoEModel
 
 # ─────────────────────────────────────────────
@@ -194,7 +194,7 @@ checkpoint_dir = str(
     / f"seed_{args.seed}"
 )
 
-trainer = ClusterMoETrainer(
+trainer = HybridMoETrainer(
     num_epochs              = args.num_epochs,
     device                  = device,
     batch_size              = args.batch_size,
