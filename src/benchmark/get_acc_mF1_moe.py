@@ -408,6 +408,7 @@ class GetAccandmF1ScoreMoE:
         
         if self.export_to_csv:
             csv_path = self.csv_store_dir / self.csv_filename
+            csv_path.parent.mkdir(parents=True, exist_ok=True)
             df.to_csv(csv_path, index=False)
             logger.info(f"Results exported to CSV: {csv_path}")
         else:

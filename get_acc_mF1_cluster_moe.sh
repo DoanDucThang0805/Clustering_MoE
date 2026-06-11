@@ -4,7 +4,7 @@
 # Computes accuracy and macro-F1 scores for all discovered checkpoints
 
 set -e
-
+clear
 # ==================== CONFIGURATION ====================
 # Edit these variables to customize the evaluation
 DATASET_NAME="plantdoc"
@@ -13,7 +13,7 @@ BACKBONE_TYPE="non_pretrain_backbone"
 BACKBONE_NAME="mobilenetv3small_torchvision"
 MODEL_CLUSTERING_NAME="kmeans"
 TEMPERATURE="0.5"
-CSV_STORE_DIR="./mean_acc_mF1_results/cluster_moe"
+CSV_STORE_DIR="/media/data/minhht/clustering_moe/mean_acc_mF1_results/cluster_moe"
 EXPORT_TO_CSV="--export_to_csv"  # Use "" to disable export
 CSV_FILENAME="cluster_moe_${BACKBONE_TYPE}_${BACKBONE_NAME}_${MODEL_CLUSTERING_NAME}_temp${TEMPERATURE}.csv"
 # ======================================================
@@ -39,7 +39,8 @@ mkdir -p "$CSV_STORE_DIR"
 
 # Build and run Python command
 echo "Running evaluation..."
-python src/benchmark/get_acc_mF1_cluster_moe.py \
+cd src
+python -m benchmark.get_acc_mF1_cluster_moe \
   --dataset_name "$DATASET_NAME" \
   --type_model "$TYPE_MODEL" \
   --backbone_type "$BACKBONE_TYPE" \
