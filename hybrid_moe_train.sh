@@ -19,7 +19,7 @@ PRETRAIN_BACKBONE=false
 
 LR=1e-3
 WEIGHT_DECAY=1e-3
-LAMBDA=0.5
+LAMBDA=0.75
 MOE_ALPHA=0.05
 
 NUM_EPOCHS=400
@@ -79,7 +79,7 @@ train_seed() {
 # train_seed 42
 
 # Train multiple seeds
-for seed in 43 44 45 46
+for seed in 42 43 44 45 46
 do
     train_seed $seed
 done

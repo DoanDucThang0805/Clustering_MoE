@@ -281,10 +281,12 @@ class HybridMoEGating(nn.Module):
             input_features=fusion_features
         )
 
-        sim_norm   = F.normalize(score_clustergating, dim=-1)
-        learn_norm = F.normalize(noisy_logits,        dim=-1)
-        hybrid_logits = self.lambda_ * sim_norm + (1 - self.lambda_) * learn_norm
-        top_k_score, top_k_indices = torch.topk(input=hybrid_logits, k=self.top_k)
-        weights = F.softmax(top_k_score/self.temperature, dim=-1)
-        return weights, top_k_indices, hybrid_logits
-    
+        sim_prob     = F.softmax(score_clustergating / self.temperature, dim=-1)
+        learn_prob   = F.softmax(noisy_logits        / self.temperature, dim=-1)
+        hybrid_probs = self.lambda_ * sim_prob + (1 - self.lambda_) * learn_prob
+
+        top_k_probs, top_k_indices = torch.topk(hybrid_probs, k=self.top_k, dim=-1)
+        weights      = top_k_probs / (top_k_probs.sum(dim=-1, keepdim=True) + 1e-9)
+        hybrid_logits = torch.log(hybrid_probs + 1e-9)
+
+        return weights, top_k_indices, hybrid_logits    

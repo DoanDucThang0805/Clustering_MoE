@@ -9,7 +9,7 @@ DATASET_NAME="plantdoc"
 BACKBONE_TYPE="non_pretrain_backbone"
 BACKBONE_NAME="mobilenetv3small_torchvision"
 MODEL_CLUSTERING_NAME="kmeans"
-METRIC="cosine"
+METRIC="euclidean"
 TEMPERATURE=0.5
 PRETRAIN_BACKBONE=false
 LR=1e-3
@@ -20,26 +20,26 @@ BATCH_SIZE=32
 # ─────────────────────────────────────────────
 # Search Space
 # ─────────────────────────────────────────────
-SEEDS=(42 43 44 45 46)
+SEEDS=(42 43 44 45)
 
 # Format: "num_experts top_k"
 CONFIGS=(
-    "2 1"
-    "2 2"
-    "3 1"
-    "3 2"
-    "4 1"
+    # "2 1"
+    # "2 2"
+    # "3 1"
+    # "3 2"
+    # "4 1"
     "4 2"
-    "5 1"
-    "5 2"
-    "5 3"
-    "6 1"
-    "6 2"
-    "6 3"
-    "8 1"
-    "8 2"
-    "8 3"
-    "8 4"
+    # "5 1"
+    # "5 2"
+    # "5 3"
+    # "6 1"
+    # "6 2"
+    # "6 3"
+    # "8 1"
+    # "8 2"
+    # "8 3"
+    # "8 4"
 )
 
 # ─────────────────────────────────────────────
@@ -47,10 +47,10 @@ CONFIGS=(
 # Format: "num_experts top_k seed"
 # ─────────────────────────────────────────────
 DONE_RUNS=(
-    "4 2 42"
-    "4 2 43"
-    "4 2 44"
-    "4 2 45"
+    # "4 2 42"
+    # "4 2 43"
+    # "4 2 44"
+    # "4 2 45"
 )
 
 # ─────────────────────────────────────────────

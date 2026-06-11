@@ -186,9 +186,10 @@ checkpoint_dir = str(
     / "checkpoints"
     / args.dataset_name
     / "hybrid_moe"
-    / args.backbone_type # eg: non_pretrain_backbone, pretrain_backbone
+    / args.backbone_type
     / f"{args.backbone_name}_backbone"
     / args.model_clustering_name
+    / f"lambda_{args.lambda_}"
     / f"temperature_{args.temperature}"
     / f"G{args.num_experts}_{args.distance_metric}_top{args.top_k}"
     / f"seed_{args.seed}"
