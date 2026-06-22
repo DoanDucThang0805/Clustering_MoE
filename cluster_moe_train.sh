@@ -9,8 +9,8 @@ DATASET_NAME="plantdoc"
 BACKBONE_TYPE="non_pretrain_backbone"
 BACKBONE_NAME="mobilenetv3small_torchvision"
 MODEL_CLUSTERING_NAME="kmeans"
-METRIC="euclidean"
-TEMPERATURE=0.5
+METRIC="cosine"
+TEMPERATURE=1.0
 PRETRAIN_BACKBONE=false
 LR=1e-3
 WEIGHT_DECAY=1e-3
@@ -20,7 +20,7 @@ BATCH_SIZE=32
 # ─────────────────────────────────────────────
 # Search Space
 # ─────────────────────────────────────────────
-SEEDS=(42 43 44 45)
+SEEDS=(42 44 46)
 
 # Format: "num_experts top_k"
 CONFIGS=(

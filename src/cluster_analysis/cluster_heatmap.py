@@ -271,7 +271,7 @@ def main() -> None:
     dataset_name = "plantdoc"
 
     model_type = (
-        "non_pretrain_models"
+        "non_pretrain_backbone"
     )
 
     backbone_name = (
@@ -279,6 +279,7 @@ def main() -> None:
     )
 
     model_name = "kmeans"
+    distance_metric = "cosine"
 
     seed = 42
 
@@ -293,6 +294,7 @@ def main() -> None:
         / model_type
         / backbone_name
         / model_name
+        / distance_metric
         / f"seed_{seed}"
     )
 
@@ -307,6 +309,7 @@ def main() -> None:
         / model_type
         / backbone_name
         / model_name
+        / distance_metric
         / f"seed_{seed}"
     )
 

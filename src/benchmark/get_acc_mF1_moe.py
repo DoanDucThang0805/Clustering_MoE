@@ -14,13 +14,29 @@ from models.moe.model import MoEModel
 from datasets.plantdoc_dataset_moe import build_datasets
 
 import logging
+from datetime import datetime
 
-# Configure logger
+# ---------------------------------------------------------------------------
+# Logging configuration
+# ---------------------------------------------------------------------------
+_LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+# Console handler — INFO and above
+_console_handler = logging.StreamHandler()
+_console_handler.setLevel(logging.INFO)
+_console_handler.setFormatter(logging.Formatter(_LOG_FORMAT))
+
+# File handler — WARNING and above, written to warnings/<timestamp>.log
+_WARNINGS_DIR = Path(__file__).parents[2] / "warnings"
+_WARNINGS_DIR.mkdir(parents=True, exist_ok=True)
+_warning_log_path = _WARNINGS_DIR / f"warnings_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+_file_handler = logging.FileHandler(_warning_log_path, encoding="utf-8")
+_file_handler.setLevel(logging.WARNING)
+_file_handler.setFormatter(logging.Formatter(_LOG_FORMAT))
+
+logging.basicConfig(level=logging.DEBUG, handlers=[_console_handler, _file_handler])
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logger.info(f"Warning logs will be saved to: {_warning_log_path}")
 
 
 class GetAccandmF1ScoreMoE:
@@ -402,7 +418,9 @@ class GetAccandmF1ScoreMoE:
         }
         df = df.groupby(["num_experts", "top_k"])[["accuracy", "macro_f1"]].agg(agg_dict).reset_index()
         df.columns = ["num_experts", "top_k", "accuracy_mean", "accuracy_std", "macro_f1_mean", "macro_f1_std"]
-        
+        df[["accuracy_mean", "accuracy_std", "macro_f1_mean", "macro_f1_std"]] = \
+            df[["accuracy_mean", "accuracy_std", "macro_f1_mean", "macro_f1_std"]].round(4)
+
         logger.info(f"Aggregated results by (num_experts, top_k): {len(df)} rows")
         logger.debug(f"\nAggregated Results:\n{df.to_string()}")
         

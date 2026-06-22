@@ -552,7 +552,9 @@ class GetAccandmF1ScoreClusterMoE:
         }
         df = df.groupby(["num_experts", "metric", "top_k"])[["accuracy", "macro_f1"]].agg(agg_dict).reset_index()
         df.columns = ["num_experts", "metric", "top_k", "accuracy_mean", "accuracy_std", "macro_f1_mean", "macro_f1_std"]
-        
+        df[["accuracy_mean", "accuracy_std", "macro_f1_mean", "macro_f1_std"]] = \
+            df[["accuracy_mean", "accuracy_std", "macro_f1_mean", "macro_f1_std"]].round(4)
+
         logger.info(f"Aggregated results by (num_experts, metric, top_k): {len(df)} rows")
         logger.debug(f"\nAggregated Results:\n{df.to_string()}")
         

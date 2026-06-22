@@ -1,0 +1,4 @@
+Model,Params (M),FLOPs (G)
+MobileNetV3-Small (Baseline),1.5261,0.1229
+MoEModel,3.4845,0.1269
+ClusteringMoEModel,3.4772,0.1268

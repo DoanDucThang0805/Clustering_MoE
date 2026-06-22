@@ -1,6 +1,7 @@
 import argparse
 import copy
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
 
@@ -15,11 +16,28 @@ from datasets.plantdoc_dataset import test_dataset
 
 
 CHECKPOINT_ROOT_DIR = Path(__file__).parents[2] / "checkpoints"
+
+# ---------------------------------------------------------------------------
+# Logging configuration
+# ---------------------------------------------------------------------------
+_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Console handler — INFO and above
+_console_handler = logging.StreamHandler()
+_console_handler.setLevel(logging.INFO)
+_console_handler.setFormatter(logging.Formatter(_LOG_FORMAT))
+
+# File handler — WARNING and above, written to warnings/<timestamp>.log
+_WARNINGS_DIR = Path(__file__).parents[2] / "warnings"
+_WARNINGS_DIR.mkdir(parents=True, exist_ok=True)
+_warning_log_path = _WARNINGS_DIR / f"warnings_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+_file_handler = logging.FileHandler(_warning_log_path, encoding="utf-8")
+_file_handler.setLevel(logging.WARNING)
+_file_handler.setFormatter(logging.Formatter(_LOG_FORMAT))
+
+logging.basicConfig(level=logging.DEBUG, handlers=[_console_handler, _file_handler])
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logger.info(f"Warning logs will be saved to: {_warning_log_path}")
 
 
 class GetAccvsMacroF1NonPretrainBaseline:
@@ -184,10 +202,10 @@ class GetAccvsMacroF1NonPretrainBaseline:
             [
                 {
                     "num_seeds": len(df),
-                    "accuracy_mean": df["accuracy"].mean(),
-                    "accuracy_std": df["accuracy"].std(),
-                    "macro_f1_mean": df["macro_f1"].mean(),
-                    "macro_f1_std": df["macro_f1"].std(),
+                    "accuracy_mean": round(df["accuracy"].mean(), 4),
+                    "accuracy_std": round(df["accuracy"].std(), 4),
+                    "macro_f1_mean": round(df["macro_f1"].mean(), 4),
+                    "macro_f1_std": round(df["macro_f1"].std(), 4),
                 }
             ]
         )

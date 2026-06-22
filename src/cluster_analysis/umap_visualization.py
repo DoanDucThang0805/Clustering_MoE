@@ -4,6 +4,8 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+from sklearn.preprocessing import normalize
 import umap
 
 
@@ -11,6 +13,7 @@ def visualize_umap(
     feature_file: Path,
     cluster_file: Path,
     output_dir: Path,
+    distance_metric: str = "euclidean",
 ) -> None:
     """
     Visualize feature embeddings using UMAP.
@@ -48,6 +51,14 @@ def visualize_umap(
         "labels"
     ]
 
+    # Normalize features if cosine metric is used
+    if distance_metric == "cosine":
+        features = normalize(
+            features,
+            norm="l2",
+            axis=1,
+        )
+
     # --------------------------------------------------
     # Load clustering results
     # --------------------------------------------------
@@ -84,7 +95,7 @@ def visualize_umap(
         n_neighbors=15,
         min_dist=0.1,
         n_components=2,
-        metric="euclidean",
+        metric=distance_metric,
         random_state=42,
     )
 
@@ -96,27 +107,45 @@ def visualize_umap(
     # Plot 1: Cluster Assignment
     # ==================================================
 
-    plt.figure(figsize=(10, 8))
+    sns.set_theme(style="ticks", context="paper", font_scale=1.5)
 
-    scatter = plt.scatter(
-        embedding_2d[:, 0],
-        embedding_2d[:, 1],
-        c=assignments,
-        s=8,
-    )
+    plt.figure(figsize=(8, 6))
 
-    plt.colorbar(
-        scatter,
-        label="Cluster ID",
+    unique_clusters = np.unique(assignments)
+    assignments_str = [f"Cluster {i}" for i in assignments]
+    cluster_order = [f"Cluster {i}" for i in sorted(unique_clusters)]
+    
+    colors_cluster = sns.color_palette("tab10", len(unique_clusters))
+    palette_cluster = dict(zip(cluster_order, colors_cluster))
+
+    sns.scatterplot(
+        x=embedding_2d[:, 0],
+        y=embedding_2d[:, 1],
+        hue=assignments_str,
+        hue_order=cluster_order,
+        palette=palette_cluster,
+        s=20,
+        alpha=0.8,
+        linewidth=0,
     )
 
     plt.title(
-        f"UMAP - Cluster Assignment (G={num_clusters})"
+        f"UMAP Projection by Cluster Assignment (K={num_clusters})",
+        fontweight="bold",
+        pad=15
     )
 
-    plt.xlabel("UMAP-1")
-    plt.ylabel("UMAP-2")
-
+    plt.xlabel("UMAP Dimension 1", fontweight="bold")
+    plt.ylabel("UMAP Dimension 2", fontweight="bold")
+    
+    plt.legend(
+        title="Cluster ID", 
+        bbox_to_anchor=(1.02, 1), 
+        loc="upper left",
+        frameon=False
+    )
+    
+    sns.despine()
     plt.tight_layout()
 
     save_path = (
@@ -126,7 +155,7 @@ def visualize_umap(
 
     plt.savefig(
         save_path,
-        dpi=300,
+        dpi=600,
         bbox_inches="tight",
     )
 
@@ -140,27 +169,53 @@ def visualize_umap(
     # Plot 2: Ground Truth Labels
     # ==================================================
 
-    plt.figure(figsize=(10, 8))
+    plt.figure(figsize=(9, 6))
 
-    scatter = plt.scatter(
-        embedding_2d[:, 0],
-        embedding_2d[:, 1],
-        c=labels,
-        s=8,
-    )
+    unique_classes = np.unique(labels)
+    num_classes = len(unique_classes)
+    labels_str = [f"Class {i}" for i in labels]
+    class_order = [f"Class {i}" for i in sorted(unique_classes)]
+    
+    if num_classes <= 10:
+        colors_class = sns.color_palette("tab10", num_classes)
+    elif num_classes <= 20:
+        colors_class = sns.color_palette("tab20", num_classes)
+    else:
+        colors_class = sns.color_palette("husl", num_classes)
+        
+    palette_class = dict(zip(class_order, colors_class))
 
-    plt.colorbar(
-        scatter,
-        label="Class ID",
+    sns.scatterplot(
+        x=embedding_2d[:, 0],
+        y=embedding_2d[:, 1],
+        hue=labels_str,
+        hue_order=class_order,
+        palette=palette_class,
+        s=20,
+        alpha=0.8,
+        linewidth=0,
     )
 
     plt.title(
-        f"UMAP - Ground Truth Classes (G={num_clusters})"
+        f"UMAP Projection by Ground Truth Classes",
+        fontweight="bold",
+        pad=15
     )
 
-    plt.xlabel("UMAP-1")
-    plt.ylabel("UMAP-2")
-
+    plt.xlabel("UMAP Dimension 1", fontweight="bold")
+    plt.ylabel("UMAP Dimension 2", fontweight="bold")
+    
+    plt.legend(
+        title="Class ID", 
+        bbox_to_anchor=(1.02, 1), 
+        loc="upper left",
+        ncol=2 if num_classes > 15 else 1,
+        fontsize="x-small",
+        title_fontsize="small",
+        frameon=False
+    )
+    
+    sns.despine()
     plt.tight_layout()
 
     save_path = (
@@ -170,7 +225,7 @@ def visualize_umap(
 
     plt.savefig(
         save_path,
-        dpi=300,
+        dpi=600,
         bbox_inches="tight",
     )
 
@@ -186,7 +241,7 @@ def main() -> None:
     dataset_name = "plantdoc"
 
     model_type = (
-        "non_pretrain_models"
+        "non_pretrain_backbone"
     )
 
     backbone_name = (
@@ -194,6 +249,7 @@ def main() -> None:
     )
 
     model_name = "kmeans"
+    distance_metric = "cosine"
 
     seed = 42
 
@@ -206,7 +262,7 @@ def main() -> None:
         / "feature_embeddings"
         / dataset_name
         / model_type
-        / "mobilenetv3small_torchvision"
+        / backbone_name
         / f"seed_{seed}"
         / f"features_train_seed{seed}.npz"
     )
@@ -222,6 +278,7 @@ def main() -> None:
         / model_type
         / backbone_name
         / model_name
+        / distance_metric
         / f"seed_{seed}"
     )
 
@@ -236,6 +293,7 @@ def main() -> None:
         / model_type
         / backbone_name
         / model_name
+        / distance_metric
         / f"seed_{seed}"
     )
 
@@ -256,6 +314,7 @@ def main() -> None:
             feature_file=feature_file,
             cluster_file=cluster_file,
             output_dir=output_dir,
+            distance_metric=distance_metric,
         )
 
 

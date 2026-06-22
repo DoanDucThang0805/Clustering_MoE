@@ -1,0 +1,61 @@
+2026-06-22 09:23:20,729 - __main__ - ERROR - Failed to extract checkpoint from /media/data/minhht/clustering_moe/checkpoints/plantdoc/clustering_moe/non_pretrain_backbone/mobilenetv3small_torchvision_backbone/kmeans/temperature_0.3/G4_cosine_top2/seed_42/run_20260612-160620/best_checkpoint.pth: CUDA error: out of memory
+Search for `cudaErrorMemoryAllocation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+2026-06-22 09:23:20,730 - __main__ - ERROR -   ✗ Failed to process checkpoint: CUDA error: out of memory
+Search for `cudaErrorMemoryAllocation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+2026-06-22 09:23:20,884 - __main__ - ERROR - Failed to extract checkpoint from /media/data/minhht/clustering_moe/checkpoints/plantdoc/clustering_moe/non_pretrain_backbone/mobilenetv3small_torchvision_backbone/kmeans/temperature_0.3/G4_cosine_top2/seed_43/run_20260612-163132/best_checkpoint.pth: CUDA error: out of memory
+Search for `cudaErrorMemoryAllocation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+2026-06-22 09:23:20,884 - __main__ - ERROR -   ✗ Failed to process checkpoint: CUDA error: out of memory
+Search for `cudaErrorMemoryAllocation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+2026-06-22 09:23:21,000 - __main__ - ERROR - Failed to extract checkpoint from /media/data/minhht/clustering_moe/checkpoints/plantdoc/clustering_moe/non_pretrain_backbone/mobilenetv3small_torchvision_backbone/kmeans/temperature_0.3/G4_cosine_top2/seed_44/run_20260612-165027/best_checkpoint.pth: CUDA error: out of memory
+Search for `cudaErrorMemoryAllocation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+2026-06-22 09:23:21,001 - __main__ - ERROR -   ✗ Failed to process checkpoint: CUDA error: out of memory
+Search for `cudaErrorMemoryAllocation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+2026-06-22 09:23:21,842 - __main__ - ERROR - Failed to extract checkpoint from /media/data/minhht/clustering_moe/checkpoints/plantdoc/clustering_moe/non_pretrain_backbone/mobilenetv3small_torchvision_backbone/kmeans/temperature_0.3/G4_cosine_top2/seed_45/run_20260612-170553/best_checkpoint.pth: CUDA error: out of memory
+Search for `cudaErrorMemoryAllocation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+2026-06-22 09:23:21,842 - __main__ - ERROR -   ✗ Failed to process checkpoint: CUDA error: out of memory
+Search for `cudaErrorMemoryAllocation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+2026-06-22 09:23:22,009 - __main__ - ERROR - Failed to extract checkpoint from /media/data/minhht/clustering_moe/checkpoints/plantdoc/clustering_moe/non_pretrain_backbone/mobilenetv3small_torchvision_backbone/kmeans/temperature_0.3/G4_cosine_top2/seed_46/run_20260612-173723/best_checkpoint.pth: CUDA error: out of memory
+Search for `cudaErrorMemoryAllocation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+2026-06-22 09:23:22,009 - __main__ - ERROR -   ✗ Failed to process checkpoint: CUDA error: out of memory
+Search for `cudaErrorMemoryAllocation' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
+2026-06-22 09:23:22,010 - __main__ - WARNING - No results to export!

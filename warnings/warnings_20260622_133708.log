@@ -1,0 +1,3 @@
+2026-06-22 13:37:08,310 - __main__ - WARNING - Found 2 run folders for G4_cosine_top2/seed_42. Run folders: ['run_20260612-175557', 'run_20260622-094227']. Selecting the latest: run_20260622-094227
+2026-06-22 13:37:08,310 - __main__ - WARNING - Found 2 run folders for G4_cosine_top2/seed_44. Run folders: ['run_20260612-191328', 'run_20260622-102028']. Selecting the latest: run_20260622-102028
+2026-06-22 13:37:08,310 - __main__ - WARNING - Found 2 run folders for G4_cosine_top2/seed_46. Run folders: ['run_20260612-200252', 'run_20260622-110113']. Selecting the latest: run_20260622-110113
