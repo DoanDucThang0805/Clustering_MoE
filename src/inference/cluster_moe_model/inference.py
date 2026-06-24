@@ -194,32 +194,25 @@ class ClusterMoEInference:
 
 
     def plot_confusion_matrix(self, results: dict) -> None:
-        """Save count and normalized confusion matrix side-by-side."""
-        cm   = confusion_matrix(results["labels"], results["preds"])
-        norm = cm.astype(float) / cm.sum(axis=1, keepdims=True)
+        """Save count confusion matrix."""
+        cm = confusion_matrix(results["labels"], results["preds"])
 
-        fig, axes = plt.subplots(1, 2, figsize=(18, 7))
+        fig, ax = plt.subplots(figsize=(9, 7))
 
-        for ax, data, title, fmt in zip(
-            axes,
-            [cm,   norm],
-            ["Confusion Matrix (Count)", "Confusion Matrix (Normalized)"],
-            ["d",  ".2f"],
-        ):
-            sns.heatmap(
-                data,
-                annot       = True,
-                fmt         = fmt,
-                cmap        = "Blues",
-                xticklabels = self.class_names or "auto",
-                yticklabels = self.class_names or "auto",
-                ax          = ax,
-            )
-            ax.set_title(title, fontsize=13)
-            ax.set_xlabel("Predicted", fontsize=11)
-            ax.set_ylabel("True",      fontsize=11)
-            ax.tick_params(axis="x", rotation=45)
-            ax.tick_params(axis="y", rotation=0)
+        sns.heatmap(
+            cm,
+            annot       = True,
+            fmt         = "d",
+            cmap        = "Blues",
+            xticklabels = self.class_names or "auto",
+            yticklabels = self.class_names or "auto",
+            ax          = ax,
+        )
+        ax.set_title("Confusion Matrix", fontsize=13)
+        ax.set_xlabel("Predicted Labels", fontsize=11)
+        ax.set_ylabel("True Labels",      fontsize=11)
+        ax.tick_params(axis="x", rotation=45)
+        ax.tick_params(axis="y", rotation=0)
 
         plt.tight_layout()
         path = self.output_dir / "confusion_matrix.png"

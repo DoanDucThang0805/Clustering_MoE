@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cluster-MoE Framework - IEEE Figure</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0f1117;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+    font-family: 'Times New Roman', serif;
+  }
+  .figure-wrap {
+    background: #ffffff;
+    padding: 22px 26px;
+    border-radius: 3px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  svg { display: block; }
+  .btn-row { display: flex; gap: 12px; margin-top: 16px; }
+  .btn {
+    padding: 9px 26px;
+    font-family: 'Times New Roman', serif;
+    font-size: 12pt;
+    background: #e5e5e5;
+    border: 1px solid #aaa;
+    cursor: pointer;
+    color: #000;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: #ccc; }
+  .hint {
+    color: #6b7280;
+    font-family: 'Times New Roman', serif;
+    font-size: 10pt;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="figure-wrap">
+  <svg id="fig" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="960" height="460">
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#000"/>
+      </marker>
+      <marker id="arr-g" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#2d7a2d"/>
+      </marker>
+      <marker id="arr-66" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6 Z" fill="#666"/>
+      </marker>
+    </defs>
+
+    <!-- ===== TOP ROW: Clustering pipeline ===== -->
+
+    <!-- Training Feature Set -->
+    <rect x="38" y="40" width="168" height="50" rx="4" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+    <text x="122" y="60" font-family="'Times New Roman',serif" font-size="13" text-anchor="middle" fill="#000">Training Feature Set</text>
+    <text x="122" y="79" font-family="'Times New Roman',serif" font-size="12" text-anchor="middle" fill="#000" font-style="italic">{u₁, u₂, ..., u_N}</text>
+
+    <!-- Arrow -->
+    <line x1="206" y1="65" x2="240" y2="65" stroke="#000" stroke-width="1.2" marker-end="url(#arr)"/>
+
+    <!-- K-means Clustering (HIGHLIGHTED) -->
+    <rect x="240" y="40" width="168" height="50" rx="4" fill="#dce8f5" stroke="#2a5a8a" stroke-width="1.3"/>
+    <text x="324" y="60" font-family="'Times New Roman',serif" font-size="13" text-anchor="middle" fill="#000">K-means Clustering</text>
+    <text x="324" y="79" font-family="'Times New Roman',serif" font-size="10" text-anchor="middle" fill="#444" font-style="italic">a_i = argmin_g ‖u_i − μ_g‖²</text>
+
+    <!-- Arrow -->
+    <line x1="408" y1="65" x2="442" y2="65" stroke="#000" stroke-width="1.2" marker-end="url(#arr)"/>
+
+    <!-- Cluster Prototypes (HIGHLIGHTED) -->
+    <rect x="442" y="40" width="230" height="50" rx="4" fill="#dce8f5" stroke="#2a5a8a" stroke-width="1.3"/>
+    <text x="557" y="60" font-family="'Times New Roman',serif" font-size="13" text-anchor="middle" fill="#000">Cluster Prototypes</text>
+    <text x="557" y="79" font-family="'Times New Roman',serif" font-size="12" text-anchor="middle" fill="#000" font-style="italic">{μ₁, μ₂, μ₃, μ₄} ∈ ℝ^d</text>
+
+    <!-- Dashed connection: Prototypes → Similarity Score -->
+    <line x1="557" y1="90" x2="557" y2="176" stroke="#666" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#arr-66)"/>
+
+    <!-- ===== BOTTOM ROW: Inference pipeline ===== -->
+
+    <!-- Input Image -->
+    <rect x="38" y="184" width="90" height="56" rx="4" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+    <rect x="58" y="192" width="7" height="7" fill="#8b9dc3" rx="0.5"/>
+    <rect x="67" y="192" width="7" height="7" fill="#a8b8d8" rx="0.5"/>
+    <rect x="76" y="192" width="7" height="7" fill="#7a8db5" rx="0.5"/>
+    <rect x="85" y="192" width="7" height="7" fill="#96a8cc" rx="0.5"/>
+    <rect x="58" y="201" width="7" height="7" fill="#b0c0e0" rx="0.5"/>
+    <rect x="67" y="201" width="7" height="7" fill="#6a7da5" rx="0.5"/>
+    <rect x="76" y="201" width="7" height="7" fill="#90a2c6" rx="0.5"/>
+    <rect x="85" y="201" width="7" height="7" fill="#a0b0d0" rx="0.5"/>
+    <rect x="58" y="210" width="7" height="7" fill="#7a8db5" rx="0.5"/>
+    <rect x="67" y="210" width="7" height="7" fill="#8b9dc3" rx="0.5"/>
+    <rect x="76" y="210" width="7" height="7" fill="#b0c0e0" rx="0.5"/>
+    <rect x="85" y="210" width="7" height="7" fill="#6a7da5" rx="0.5"/>
+    <text x="83" y="236" font-family="'Times New Roman',serif" font-size="11" text-anchor="middle" fill="#000" font-style="italic">x_i</text>
+
+    <!-- Arrow -->
+    <line x1="128" y1="212" x2="160" y2="212" stroke="#000" stroke-width="1.2" marker-end="url(#arr)"/>
+
+    <!-- Feature Extractor -->
+    <rect x="160" y="184" width="140" height="56" rx="4" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+    <text x="230" y="204" font-family="'Times New Roman',serif" font-size="12" text-anchor="middle" fill="#000">Feature Extractor</text>
+    <text x="230" y="220" font-family="'Times New Roman',serif" font-size="12" text-anchor="middle" fill="#000" font-style="italic">f_θ</text>
+    <text x="230" y="235" font-family="'Times New Roman',serif" font-size="9" text-anchor="middle" fill="#555">(MobileNetV3-Small)</text>
+
+    <!-- Arrow -->
+    <line x1="300" y1="212" x2="332" y2="212" stroke="#000" stroke-width="1.2" marker-end="url(#arr)"/>
+
+    <!-- Feature Vector -->
+    <rect x="332" y="188" width="100" height="48" rx="4" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+    <text x="382" y="207" font-family="'Times New Roman',serif" font-size="11" text-anchor="middle" fill="#000">Feature Vector</text>
+    <text x="382" y="225" font-family="'Times New Roman',serif" font-size="10.5" text-anchor="middle" fill="#333" font-style="italic">u_i ∈ ℝ^d</text>
+
+    <!-- Arrow -->
+    <line x1="432" y1="213" x2="468" y2="213" stroke="#000" stroke-width="1.2" marker-end="url(#arr)"/>
+
+    <!-- Similarity Score (HIGHLIGHTED) -->
+    <rect x="468" y="178" width="155" height="86" rx="4" fill="#dce8f5" stroke="#2a5a8a" stroke-width="1.4"/>
+    <text x="545" y="196" font-family="'Times New Roman',serif" font-size="12" text-anchor="middle" fill="#000" font-weight="bold">Similarity Score</text>
+    <line x1="478" y1="202" x2="613" y2="202" stroke="#2a5a8a" stroke-width="0.5"/>
+    <text x="545" y="220" font-family="'Times New Roman',serif" font-size="10.5" text-anchor="middle" fill="#222" font-style="italic">s_i,g = cos(u_i, μ_g)</text>
+    <text x="545" y="237" font-family="'Times New Roman',serif" font-size="9.5" text-anchor="middle" fill="#555">or</text>
+    <text x="545" y="254" font-family="'Times New Roman',serif" font-size="10.5" text-anchor="middle" fill="#222" font-style="italic">s_i,g = −‖u_i − μ_g‖²</text>
+
+    <!-- Arrow -->
+    <line x1="623" y1="213" x2="660" y2="213" stroke="#000" stroke-width="1.2" marker-end="url(#arr)"/>
+
+    <!-- Top-k Selection -->
+    <rect x="660" y="188" width="110" height="48" rx="4" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+    <text x="715" y="207" font-family="'Times New Roman',serif" font-size="11" text-anchor="middle" fill="#000">Top-k Selection</text>
+    <text x="715" y="225" font-family="'Times New Roman',serif" font-size="9" text-anchor="middle" fill="#333" font-style="italic">Softmax(·/τ) → α_i,g</text>
+
+    <!-- Arrow down to expert area -->
+    <line x1="715" y1="236" x2="715" y2="268" stroke="#000" stroke-width="1.2" marker-end="url(#arr)"/>
+
+    <!-- ===== EXPERT AREA ===== -->
+
+    <!-- Labels -->
+    <text x="683" y="281" font-family="'Times New Roman',serif" font-size="9" text-anchor="middle" font-weight="bold" fill="#2d7a2d">Active</text>
+    <text x="747" y="281" font-family="'Times New Roman',serif" font-size="9" text-anchor="middle" font-weight="bold" fill="#999">Inactive</text>
+
+    <!-- Active Expert E1 -->
+    <rect x="658" y="286" width="56" height="34" rx="3" fill="#d4ecd4" stroke="#2d7a2d" stroke-width="1.2"/>
+    <text x="686" y="300" font-family="'Times New Roman',serif" font-size="9.5" text-anchor="middle" fill="#1a4a1a">E₁ (μ₁)</text>
+    <text x="686" y="314" font-family="'Times New Roman',serif" font-size="8.5" text-anchor="middle" fill="#2d7a2d" font-style="italic">α₁ = 0.6</text>
+
+    <!-- Active Expert E2 -->
+    <rect x="658" y="324" width="56" height="34" rx="3" fill="#d4ecd4" stroke="#2d7a2d" stroke-width="1.2"/>
+    <text x="686" y="338" font-family="'Times New Roman',serif" font-size="9.5" text-anchor="middle" fill="#1a4a1a">E₂ (μ₂)</text>
+    <text x="686" y="352" font-family="'Times New Roman',serif" font-size="8.5" text-anchor="middle" fill="#2d7a2d" font-style="italic">α₂ = 0.4</text>
+
+    <!-- Inactive Expert E3 -->
+    <rect x="718" y="286" width="56" height="34" rx="3" fill="#f0f0f0" stroke="#aaa" stroke-width="0.9" stroke-dasharray="4,3"/>
+    <text x="746" y="305" font-family="'Times New Roman',serif" font-size="9.5" text-anchor="middle" fill="#999">E₃ (μ₃)</text>
+    <text x="746" y="317" font-family="'Times New Roman',serif" font-size="8.5" text-anchor="middle" fill="#bbb" font-style="italic">α₃ = 0</text>
+
+    <!-- Inactive Expert E4 -->
+    <rect x="718" y="324" width="56" height="34" rx="3" fill="#f0f0f0" stroke="#aaa" stroke-width="0.9" stroke-dasharray="4,3"/>
+    <text x="746" y="343" font-family="'Times New Roman',serif" font-size="9.5" text-anchor="middle" fill="#999">E₄ (μ₄)</text>
+    <text x="746" y="355" font-family="'Times New Roman',serif" font-size="8.5" text-anchor="middle" fill="#bbb" font-style="italic">α₄ = 0</text>
+
+    <!-- Dotted lines to inactive experts -->
+    <line x1="715" y1="268" x2="746" y2="286" stroke="#ccc" stroke-width="0.8" stroke-dasharray="3,2"/>
+    <line x1="715" y1="268" x2="746" y2="324" stroke="#ccc" stroke-width="0.8" stroke-dasharray="3,2"/>
+
+    <!-- Green arrow: Active → Aggregation -->
+    <line x1="686" y1="358" x2="686" y2="392" stroke="#2d7a2d" stroke-width="1.4" marker-end="url(#arr-g)"/>
+
+    <!-- Sparse label -->
+    <text x="724" y="378" font-family="'Times New Roman',serif" font-size="9" fill="#555" font-style="italic">Sparse Activation</text>
+    <text x="724" y="390" font-family="'Times New Roman',serif" font-size="9" fill="#555" font-style="italic">(k = 2, G = 4)</text>
+
+    <!-- Weighted Sum -->
+    <rect x="660" y="396" width="110" height="42" rx="4" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+    <text x="715" y="413" font-family="'Times New Roman',serif" font-size="11" text-anchor="middle" fill="#000">Weighted Sum</text>
+    <text x="715" y="429" font-family="'Times New Roman',serif" font-size="9" text-anchor="middle" fill="#222" font-style="italic">h_i = Σ α_i,g · E_g(u_i)</text>
+
+    <!-- Arrow -->
+    <line x1="770" y1="417" x2="808" y2="417" stroke="#000" stroke-width="1.2" marker-end="url(#arr)"/>
+
+    <!-- Classifier -->
+    <rect x="808" y="396" width="120" height="42" rx="4" fill="#f5f5f5" stroke="#333" stroke-width="1.2"/>
+    <text x="868" y="413" font-family="'Times New Roman',serif" font-size="11" text-anchor="middle" fill="#000">Classifier</text>
+    <text x="868" y="429" font-family="'Times New Roman',serif" font-size="8.5" text-anchor="middle" fill="#222" font-style="italic">ŷ_i = softmax(W_o h_i + b_o)</text>
+
+    <!-- Output -->
+    <text x="868" y="455" font-family="'Times New Roman',serif" font-size="11" text-anchor="middle" fill="#000" font-style="italic">ŷ_i (disease class)</text>
+
+  </svg>
+</div>
+
+<div class="btn-row">
+  <button class="btn" onclick="downloadPNG(3)">Download PNG (300 DPI)</button>
+  <button class="btn" onclick="downloadPNG(2)">Download PNG (200 DPI)</button>
+  <button class="btn" onclick="downloadSVG()">Download SVG</button>
+</div>
+<p class="hint">PNG sử dụng scale factor để đạt độ phân giải in ấn. SVG giữ chất lượng vô hạn.</p>
+
+<script>
+function downloadPNG(scale) {
+  var svg = document.getElementById('fig');
+  var w = 960, h = 460;
+  var canvas = document.createElement('canvas');
+  canvas.width = w * scale;
+  canvas.height = h * scale;
+  var ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
+  var serializer = new XMLSerializer();
+  var svgStr = serializer.serializeToString(svg);
+  if (svgStr.indexOf('xmlns="http://www.w3.org/2000/svg"') === -1) {
+    svgStr = svgStr.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+  }
+  var img = new Image();
+  img.onload = function() {
+    ctx.drawImage(img, 0, 0, w, h);
+    var a = document.createElement('a');
+    a.download = 'cluster_moe_framework_' + (scale * 100) + 'dpi.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  };
+  img.onerror = function() { alert('PNG export loi. Dung Download SVG.'); };
+  img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgStr)));
+}
+
+function downloadSVG() {
+  var svg = document.getElementById('fig');
+  var serializer = new XMLSerializer();
+  var svgStr = serializer.serializeToString(svg);
+  if (svgStr.indexOf('xmlns="http://www.w3.org/2000/svg"') === -1) {
+    svgStr = svgStr.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+  }
+  var blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+  var a = document.createElement('a');
+  a.download = 'cluster_moe_framework.svg';
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+</script>
+</body>
+</html>
