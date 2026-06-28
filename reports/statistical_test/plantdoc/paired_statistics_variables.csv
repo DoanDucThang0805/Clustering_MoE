@@ -1,0 +1,16 @@
+Variable,Symbol,Description / Calculation
+dataset,–,The benchmark dataset evaluated (PlantDoc in this analysis).
+metric,$m$,The performance metric evaluated (Accuracy or Macro-F1).
+model_A,$A$,The reference architecture: Cluster-MoE G4 cosine top-2.
+model_B,$B$,The baseline or alternative architecture compared against Model A.
+n_seeds,$N$,The number of paired random seeds (N = 5; seeds 42–46).
+mean_A,$\bar{m}^{(A)}$,The empirical mean of the metric for Model A across N seeds.
+std_A,$s^{(A)}$,The sample standard deviation for Model A (denominator N - 1).
+mean_B,$\bar{m}^{(B)}$,The empirical mean of the metric for Model B across N seeds.
+std_B,$s^{(B)}$,The sample standard deviation for Model B (denominator N - 1).
+mean_delta,$\bar{\Delta}$,The average paired difference: $\bar{\Delta}=N^{-1}\sum_{i=1}^{N}(m_i^{(A)}-m_i^{(B)})$.
+paired_t_p,$p_t$,The raw two-sided paired t-test p-value for $H_0: E[\Delta]=0$.
+wilcoxon_p,$p_W$,The raw two-sided Wilcoxon signed-rank p-value for paired differences.
+holm_p,$p_{\mathrm{Holm}}$,The Holm-Bonferroni-adjusted paired t-test p-value across all six tests.
+bh_p,$p_{\mathrm{BH}}$,The Benjamini-Hochberg-adjusted paired t-test p-value across all six tests.
+conclusion,–,Significance at alpha = 0.05 based on holm_p; direction follows mean_delta.

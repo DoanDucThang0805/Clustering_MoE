@@ -1,0 +1,7 @@
+dataset,metric,model_A,model_B,n_seeds,mean_A,std_A,mean_B,std_B,mean_delta,paired_t_p,wilcoxon_p,holm_p,bh_p,conclusion
+plantdoc,Accuracy,Cluster-MoE G4 Cosine Top-2,MobileNetV3-Small,5,0.802807,0.023978,0.765614,0.013453,0.037193,0.067672,0.125000,0.270686,0.135343,not_significant
+plantdoc,Macro-F1,Cluster-MoE G4 Cosine Top-2,MobileNetV3-Small,5,0.766857,0.032949,0.730651,0.017004,0.036206,0.149277,0.312500,0.302455,0.179132,not_significant
+plantdoc,Accuracy,Cluster-MoE G4 Cosine Top-2,MobileNetV3-Small-MoE,5,0.802807,0.023978,0.783860,0.008078,0.018947,0.100818,0.187500,0.302455,0.151228,not_significant
+plantdoc,Macro-F1,Cluster-MoE G4 Cosine Top-2,MobileNetV3-Small-MoE,5,0.766857,0.032949,0.749795,0.012222,0.017062,0.296388,0.312500,0.302455,0.296388,not_significant
+plantdoc,Accuracy,Cluster-MoE G4 Cosine Top-2,Cluster-MoE G4 Euclidean Top-2,5,0.802807,0.023978,0.738246,0.033710,0.064561,0.012469,0.062500,0.074816,0.041724,not_significant
+plantdoc,Macro-F1,Cluster-MoE G4 Cosine Top-2,Cluster-MoE G4 Euclidean Top-2,5,0.766857,0.032949,0.695251,0.030393,0.071606,0.013908,0.062500,0.074816,0.041724,not_significant
