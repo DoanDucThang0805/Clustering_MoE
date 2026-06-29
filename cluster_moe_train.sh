@@ -6,12 +6,12 @@ clear
 # Fixed Configuration
 # ─────────────────────────────────────────────
 DATASET_NAME="plantdoc"
-BACKBONE_TYPE="non_pretrain_backbone"
+BACKBONE_TYPE="pretrain_backbone"
 BACKBONE_NAME="mobilenetv3small_torchvision"
 MODEL_CLUSTERING_NAME="kmeans"
 METRIC="cosine"
-TEMPERATURE=1.0
-PRETRAIN_BACKBONE=false
+TEMPERATURE=0.5
+PRETRAIN_BACKBONE=true
 LR=1e-3
 WEIGHT_DECAY=1e-3
 NUM_EPOCHS=400
@@ -20,7 +20,7 @@ BATCH_SIZE=32
 # ─────────────────────────────────────────────
 # Search Space
 # ─────────────────────────────────────────────
-SEEDS=(42 44 46)
+SEEDS=(42 43 44 45 46 47 48 49 50 51)
 
 # Format: "num_experts top_k"
 CONFIGS=(

@@ -61,6 +61,7 @@ class ImageEmbedding:
         dataset_name: str,
         model_name:   str,
         type_model:   str,
+        type_backbone: str,
         split:        Literal["train", "validation", "test"],
         seed:         int,
         run_time:     str,
@@ -70,6 +71,7 @@ class ImageEmbedding:
         self.dataset_name = dataset_name
         self.model_name   = model_name
         self.type_model   = type_model
+        self.type_backbone = type_backbone
         self.split        = split
         self.seed         = seed
         self.run_time     = run_time
@@ -95,7 +97,7 @@ class ImageEmbedding:
         self.output_dir = (
             ROOT_OUTPUT_DIR
             / self.dataset_name
-            / self.type_model
+            / self.type_backbone
             / f"{self.model_name}_backbone"
             / f"seed_{self.seed}"
         )
@@ -178,6 +180,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model_name",   type=str,  default="mobilenetv3small_torchvision",
                         choices=list(_BACKBONE_MAP.keys()))
     parser.add_argument("--type_model",   type=str,  required=True)
+    parser.add_argument("--type_backbone", type=str, required=True)
     parser.add_argument("--run_time",     type=str,  required=True,
                         help="Run timestamp folder name inside seed dir.")
     parser.add_argument("--split",        type=str,  default="all",
@@ -197,6 +200,7 @@ def main():
             dataset_name = args.dataset_name,
             model_name   = args.model_name,
             type_model   = args.type_model,
+            type_backbone= args.type_backbone,
             split        = split,
             seed         = args.seed,
             run_time     = args.run_time,
@@ -208,4 +212,3 @@ def main():
 if __name__ == "__main__":
     print(ROOT_CHECKPOINT_DIR)
     main()
-    

@@ -17,9 +17,10 @@ set -e  # dừng ngay nếu có lỗi
 DATASET_NAME="plantdoc"
 MODEL_NAME="mobilenetv3small_torchvision"   # hoặc mobilenetv3small_timm
 TYPE_MODEL="pretrain_baseline"                 # hoặc pretrain_baseline
-RUN_TIME="run_20260528-211743"                           # tên folder timestamp trong seed dir
+TYPE_BACKBONE="pretrain_backbone"
+RUN_TIME="run_20260629-101639"                           # tên folder timestamp trong seed dir
 SPLIT="all"                                 # train | validation | test | all
-SEED=46
+SEED=42
 BATCH_SIZE=64
 NUM_WORKERS=4
 
@@ -64,6 +65,7 @@ python -m embedding.pretrain_backbone.image_embedding \
     --dataset_name "$DATASET_NAME" \
     --model_name   "$MODEL_NAME"   \
     --type_model   "$TYPE_MODEL"   \
+    --type_backbone "$TYPE_BACKBONE" \
     --run_time     "$RUN_TIME"     \
     --split        "$SPLIT"        \
     --seed         "$SEED"         \
