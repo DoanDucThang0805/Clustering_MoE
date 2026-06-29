@@ -1,43 +1,45 @@
 #!/bin/bash
+set -euo pipefail
 
 source venv/bin/activate
 cd src
-python -m training.kmean \
-    --dataset_name "plantdoc" \
-    --backbone_type "non_pretrain_backbone" \
-    --backbone_name "mobilenetv3small_torchvision" \
-    --seed 42 \
-    --num_clusters 2 3 4 5 6 8 \
-    --metric "cosine"
 
-python -m training.kmean \
-    --dataset_name "plantdoc" \
-    --backbone_type "non_pretrain_backbone" \
-    --backbone_name "mobilenetv3small_torchvision" \
-    --seed 43 \
-    --num_clusters 2 3 4 5 6 8 \
-    --metric "cosine"
+DATASET_NAME="plantdoc"
+BACKBONE_TYPE="pretrain_backbone"
+BACKBONE_NAME="mobilenetv3small_torchvision"
 
-python -m training.kmean \
-    --dataset_name "plantdoc" \
-    --backbone_type "non_pretrain_backbone" \
-    --backbone_name "mobilenetv3small_torchvision" \
-    --seed 44 \
-    --num_clusters 2 3 4 5 6 8 \
-    --metric "cosine"
+SEEDS=(42 43 44 45 46 47 48 49 50 51)
+METRICS=("cosine" "euclidean")
+NUM_CLUSTERS=(2 3 4 5 6 8)
 
-python -m training.kmean \
-    --dataset_name "plantdoc" \
-    --backbone_type "non_pretrain_backbone" \
-    --backbone_name "mobilenetv3small_torchvision" \
-    --seed 45 \
-    --num_clusters 2 3 4 5 6 8 \
-    --metric "cosine"
+total_runs=$(( ${#SEEDS[@]} * ${#METRICS[@]} ))
+current_run=0
 
-python -m training.kmean \
-    --dataset_name "plantdoc" \
-    --backbone_type "non_pretrain_backbone" \
-    --backbone_name "mobilenetv3small_torchvision" \
-    --seed 46 \
-    --num_clusters 2 3 4 5 6 8 \
-    --metric "cosine"
+echo "========================================"
+echo "  Pretrained Backbone K-Means Grid"
+echo "========================================"
+echo "  Seeds      : ${SEEDS[*]}"
+echo "  Metrics    : ${METRICS[*]}"
+echo "  Clusters   : ${NUM_CLUSTERS[*]}"
+echo "  Total runs : $total_runs"
+echo "========================================"
+
+for seed in "${SEEDS[@]}"; do
+    for metric in "${METRICS[@]}"; do
+        current_run=$((current_run + 1))
+
+        echo ""
+        echo "[$current_run/$total_runs] seed=$seed metric=$metric"
+
+        python -m training.kmean \
+            --dataset_name "$DATASET_NAME" \
+            --backbone_type "$BACKBONE_TYPE" \
+            --backbone_name "$BACKBONE_NAME" \
+            --seed "$seed" \
+            --num_clusters "${NUM_CLUSTERS[@]}" \
+            --metric "$metric"
+    done
+done
+
+echo ""
+echo "Completed all $total_runs K-Means runs."
