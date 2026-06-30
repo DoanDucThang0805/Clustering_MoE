@@ -1,6 +1,7 @@
 #!/bin/bash
-set -e
-clear
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ─────────────────────────────────────────────
 # Fixed Configuration
@@ -43,17 +44,6 @@ CONFIGS=(
 )
 
 # ─────────────────────────────────────────────
-# Already completed runs — skip these
-# Format: "num_experts top_k seed"
-# ─────────────────────────────────────────────
-DONE_RUNS=(
-    # "4 2 42"
-    # "4 2 43"
-    # "4 2 44"
-    # "4 2 45"
-)
-
-# ─────────────────────────────────────────────
 # Functions
 # ─────────────────────────────────────────────
 
@@ -61,23 +51,38 @@ is_done() {
     local num_experts=$1
     local top_k=$2
     local seed=$3
-    for done in "${DONE_RUNS[@]}"; do
-        if [ "$done" = "$num_experts $top_k $seed" ]; then
-            return 0   # already done
+    local seed_dir="$SCRIPT_DIR/checkpoints/$DATASET_NAME/clustering_moe/$BACKBONE_TYPE/${BACKBONE_NAME}_backbone/$MODEL_CLUSTERING_NAME/temperature_$TEMPERATURE/G${num_experts}_${METRIC}_top${top_k}/seed_${seed}"
+    local run_dir
+
+    for run_dir in "$seed_dir"/run_*; do
+        if [ -f "$run_dir/best_checkpoint.pth" ] &&
+           [ -f "$run_dir/last_checkpoint.pth" ]; then
+            return 0
         fi
     done
-    return 1   # not done yet
+    return 1
 }
 
+centroid_path() {
+    local num_experts=$1
+    local seed=$2
+
+    echo "$SCRIPT_DIR/clustering_results/$DATASET_NAME/$BACKBONE_TYPE/${BACKBONE_NAME}_backbone/$MODEL_CLUSTERING_NAME/$METRIC/seed_${seed}/clusters_kmeans_G${num_experts}_seed${seed}.npz"
+}
 
 train_one() {
     local num_experts=$1
     local top_k=$2
     local seed=$3
+    local pretrained_args=()
 
     echo ""
     echo "  seed=$seed  |  G=$num_experts  |  top_k=$top_k"
     echo "----------------------------------------"
+
+    if [ "$PRETRAIN_BACKBONE" = true ]; then
+        pretrained_args+=(--pretrain_backbone)
+    fi
 
     python -m training.clustering_moe \
         --seed              "$seed"         \
@@ -93,9 +98,41 @@ train_one() {
         --backbone_type     "$BACKBONE_TYPE" \
         --backbone_name     "$BACKBONE_NAME" \
         --model_clustering_name "$MODEL_CLUSTERING_NAME" \
-        $([ "$PRETRAIN_BACKBONE" = true ] && echo "--pretrain_backbone")
+        "${pretrained_args[@]}"
 
     echo "  ✓ Done: G=$num_experts top_k=$top_k seed=$seed"
+}
+
+preflight() {
+    local config
+    local num_experts
+    local top_k
+    local seed
+    local centroid
+
+    if [ ! -f "$SCRIPT_DIR/venv/bin/activate" ]; then
+        echo "[ERROR] Virtual environment not found: $SCRIPT_DIR/venv"
+        exit 1
+    fi
+
+    source "$SCRIPT_DIR/venv/bin/activate"
+
+    if ! python -c \
+        'import sys, torch; print(f"CUDA: {torch.cuda.is_available()}"); sys.exit(0 if torch.cuda.is_available() else 1)'; then
+        echo "[ERROR] CUDA is required for the 10-seed training batch."
+        exit 1
+    fi
+
+    for config in "${CONFIGS[@]}"; do
+        read -r num_experts top_k <<< "$config"
+        for seed in "${SEEDS[@]}"; do
+            centroid=$(centroid_path "$num_experts" "$seed")
+            if [ ! -f "$centroid" ]; then
+                echo "[ERROR] Missing centroid: $centroid"
+                exit 1
+            fi
+        done
+    done
 }
 
 
@@ -160,12 +197,7 @@ run_all() {
 # ─────────────────────────────────────────────
 # Main
 # ─────────────────────────────────────────────
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
-
-if [ -d "venv" ]; then
-    source venv/bin/activate
-fi
-
+preflight
 cd src
 run_all

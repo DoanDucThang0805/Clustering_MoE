@@ -9,9 +9,11 @@ class Mobilenetv3SmallBackboneTorchvision(nn.Module):
         super().__init__()
         self.pretrained = pretrained
         if self.pretrained:
-            self.model=models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.IMAGENET1K_V1),
+            self.model = models.mobilenet_v3_small(
+                weights=models.MobileNet_V3_Small_Weights.IMAGENET1K_V1
+            )
         else:
-            self.model=models.mobilenet_v3_small()
+            self.model = models.mobilenet_v3_small()
 
     
     def forward(self, x):

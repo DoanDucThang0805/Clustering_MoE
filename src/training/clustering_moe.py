@@ -77,6 +77,8 @@ parser.add_argument("--temperature", type=float, default=0.5)
 parser.add_argument("--pretrain_backbone", action="store_true",
                     help="Whether to use a pretrained backbone (default: False)")
 parser.add_argument("--lr",          type=float, default=1e-3)
+parser.add_argument("--backbone_lr", type=float, default=None,
+                    help="Optional separate learning rate for the backbone")
 parser.add_argument("--weight_decay",type=float, default=1e-3)
 parser.add_argument("--num_epochs",  type=int,   default=200)
 parser.add_argument("--batch_size",  type=int,   default=64)
@@ -159,11 +161,31 @@ criterion = nn.CrossEntropyLoss(
     weight = torch.tensor(class_weights, dtype=torch.float32).to(device)
 )
 
-optimizer = optim.AdamW(
-    model.parameters(),
-    lr           = args.lr,
-    weight_decay = args.weight_decay,
-)
+if args.backbone_lr is None:
+    optimizer = optim.AdamW(
+        model.parameters(),
+        lr           = args.lr,
+        weight_decay = args.weight_decay,
+    )
+else:
+    non_backbone_parameters = [
+        parameter
+        for name, parameter in model.named_parameters()
+        if not name.startswith("backbone.")
+    ]
+    optimizer = optim.AdamW(
+        [
+            {
+                "params": model.backbone.parameters(),
+                "lr": args.backbone_lr,
+            },
+            {
+                "params": non_backbone_parameters,
+                "lr": args.lr,
+            },
+        ],
+        weight_decay=args.weight_decay,
+    )
 
 # ─────────────────────────────────────────────
 # Trainer
@@ -207,6 +229,8 @@ if __name__ == "__main__":
     print(f"  top_k       : {args.top_k}")
     print(f"  metric      : {args.distance_metric}")
     print(f"  temperature : {args.temperature}")
+    print(f"  backbone_lr : {args.backbone_lr or args.lr}")
+    print(f"  head_lr     : {args.lr}")
     print(f"  device      : {device}")
     print(f"  checkpoint  : {checkpoint_dir}")
     print("=" * 60)

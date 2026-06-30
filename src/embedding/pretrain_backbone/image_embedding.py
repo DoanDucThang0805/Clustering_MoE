@@ -60,11 +60,12 @@ class ImageEmbedding:
         self,
         dataset_name: str,
         model_name:   str,
-        type_model:   str,
+        type_model:   str | None,
         type_backbone: str,
         split:        Literal["train", "validation", "test"],
         seed:         int,
-        run_time:     str,
+        run_time:     str | None,
+        weights_source: Literal["checkpoint", "imagenet"] = "checkpoint",
         batch_size:   int = 64,
         num_workers:  int = 4,
     ):
@@ -75,6 +76,7 @@ class ImageEmbedding:
         self.split        = split
         self.seed         = seed
         self.run_time     = run_time
+        self.weights_source = weights_source
         self.batch_size   = batch_size
         self.num_workers  = num_workers
 
@@ -85,15 +87,22 @@ class ImageEmbedding:
         )
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        self.checkpoint_path = (
-            ROOT_CHECKPOINT_DIR
-            / self.dataset_name
-            / self.type_model
-            / self.model_name
-            / f"seed_{self.seed}"
-            / self.run_time
-            / "best_checkpoint.pth"
-        )
+        self.checkpoint_path: Path | None = None
+        if self.weights_source == "checkpoint":
+            if self.type_model is None or self.run_time is None:
+                raise ValueError(
+                    "type_model and run_time are required when "
+                    "weights_source='checkpoint'."
+                )
+            self.checkpoint_path = (
+                ROOT_CHECKPOINT_DIR
+                / self.dataset_name
+                / self.type_model
+                / self.model_name
+                / f"seed_{self.seed}"
+                / self.run_time
+                / "best_checkpoint.pth"
+            )
         self.output_dir = (
             ROOT_OUTPUT_DIR
             / self.dataset_name
@@ -116,10 +125,19 @@ class ImageEmbedding:
         return model
 
 
-    def create_backbone(self, model_name: str, checkpoint_path: Path) -> nn.Module:
+    def create_backbone(
+        self,
+        model_name: str,
+        checkpoint_path: Path | None,
+    ) -> nn.Module:
         if model_name not in _BACKBONE_MAP:
             raise ValueError(f"No backbone wrapper for model: {model_name}")
-        model    = self.load_checkpoint(model_name, checkpoint_path)
+        if self.weights_source == "checkpoint":
+            if checkpoint_path is None:
+                raise ValueError("checkpoint_path is required for checkpoint weights.")
+            model = self.load_checkpoint(model_name, checkpoint_path)
+        else:
+            model = self.create_model(model_name)
         backbone = _BACKBONE_MAP[model_name](model)
         return backbone
 
@@ -179,10 +197,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset_name", type=str,  required=True)
     parser.add_argument("--model_name",   type=str,  default="mobilenetv3small_torchvision",
                         choices=list(_BACKBONE_MAP.keys()))
-    parser.add_argument("--type_model",   type=str,  required=True)
+    parser.add_argument("--type_model",   type=str)
     parser.add_argument("--type_backbone", type=str, required=True)
-    parser.add_argument("--run_time",     type=str,  required=True,
+    parser.add_argument("--run_time",     type=str,
                         help="Run timestamp folder name inside seed dir.")
+    parser.add_argument("--weights_source", type=str, default="checkpoint",
+                        choices=["checkpoint", "imagenet"])
     parser.add_argument("--split",        type=str,  default="all",
                         choices=["train", "validation", "test", "all"])
     parser.add_argument("--seed",         type=int,  default=42)
@@ -204,6 +224,7 @@ def main():
             split        = split,
             seed         = args.seed,
             run_time     = args.run_time,
+            weights_source=args.weights_source,
             batch_size   = args.batch_size,
             num_workers  = args.num_workers,
         ).extract_embeddings()

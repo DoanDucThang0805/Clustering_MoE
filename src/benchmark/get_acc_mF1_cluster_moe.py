@@ -491,7 +491,10 @@ class GetAccandmF1ScoreClusterMoE:
                     metric=checkpoint_config["metric"],
                     model_clustering_name=self.model_clustering_name,
                     seed=int(seed),
-                    pretrain_backbone=(self.backbone_type == "pretrain_backbone")
+                    pretrain_backbone=(
+                        self.backbone_type
+                        in {"pretrain_backbone", "imagenet_initialization_backbone"}
+                    )
                 )
                 model = self.load_checkpoint(model=model, checkpoint_path=checkpoint_path)
                 accuracy, macro_f1 = self.run_inference(model=model, data_loader=test_loader)
@@ -582,7 +585,11 @@ def main():
     parser.add_argument("--dataset_name", type=str, required=True, default="plantdoc")
     parser.add_argument("--type_model", type=str, required=True, default="clustering_moe")
     parser.add_argument("--backbone_type", type=str, required=True, 
-                       choices=["pretrain_backbone", "non_pretrain_backbone"])
+                       choices=[
+                           "pretrain_backbone",
+                           "non_pretrain_backbone",
+                           "imagenet_initialization_backbone",
+                       ])
     parser.add_argument("--backbone_name", type=str, required=True,
                        choices=["mobilenetv3small_torchvision", "mobilenetv3small_timm"])
     parser.add_argument("--model_clustering_name", type=str, required=True, default="kmeans")
