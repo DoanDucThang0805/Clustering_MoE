@@ -76,14 +76,17 @@ parser.add_argument("--distance_metric",      type=str,   default="cosine",
 parser.add_argument("--temperature", type=float, default=0.5)
 parser.add_argument("--pretrain_backbone", action="store_true",
                     help="Whether to use a pretrained backbone (default: False)")
+parser.add_argument("--backbone_checkpoint", type=Path,
+                    help="Dense checkpoint used to initialize only the backbone")
 parser.add_argument("--lr",          type=float, default=1e-3)
-parser.add_argument("--backbone_lr", type=float, default=None,
-                    help="Optional separate learning rate for the backbone")
 parser.add_argument("--weight_decay",type=float, default=1e-3)
+parser.add_argument("--label_smoothing", type=float, default=0.0)
 parser.add_argument("--num_epochs",  type=int,   default=200)
 parser.add_argument("--batch_size",  type=int,   default=64)
 parser.add_argument("--dataset_name", type=str)
 parser.add_argument("--backbone_type",   type=str)
+parser.add_argument("--centroid_backbone_type", type=str,
+                    help="Backbone namespace containing the K-Means centroids")
 parser.add_argument("--backbone_name",type=str)
 parser.add_argument("--model_clustering_name",   type=str)
 args = parser.parse_args()
@@ -124,10 +127,16 @@ val_loader = DataLoader(
 device   = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 root_dir = Path(__file__).parents[2]
 
+centroid_backbone_type = (
+    args.centroid_backbone_type
+    if args.centroid_backbone_type is not None
+    else args.backbone_type
+)
+
 centroids = load_centroids(
     root_dir     = root_dir,
     dataset_name = args.dataset_name,
-    backbone_type  = args.backbone_type,
+    backbone_type  = centroid_backbone_type,
     backbone_name= args.backbone_name,
     model_clustering_name   = args.model_clustering_name,
     distance_metric= args.distance_metric,
@@ -148,6 +157,27 @@ model = ClusteringMoEModel(
     temperature        = args.temperature,
 )
 
+if args.backbone_checkpoint is not None:
+    if not hasattr(model.backbone, "load_dense_checkpoint"):
+        raise ValueError(
+            f"Dense checkpoint initialization is unsupported for "
+            f"backbone '{args.backbone_name}'."
+        )
+    num_loaded_tensors = model.backbone.load_dense_checkpoint(
+        args.backbone_checkpoint
+    )
+    print(
+        f"Loaded {num_loaded_tensors} backbone tensors from "
+        f"{args.backbone_checkpoint}"
+    )
+
+model.backbone_checkpoint_path = (
+    str(args.backbone_checkpoint.resolve())
+    if args.backbone_checkpoint is not None
+    else None
+)
+model.centroid_backbone_type = centroid_backbone_type
+
 
 # ─────────────────────────────────────────────
 # Loss + Optimizer
@@ -158,34 +188,15 @@ class_weights = compute_class_weight(
     y            = labels,
 )
 criterion = nn.CrossEntropyLoss(
-    weight = torch.tensor(class_weights, dtype=torch.float32).to(device)
+    weight          = torch.tensor(class_weights, dtype=torch.float32).to(device),
+    label_smoothing = args.label_smoothing,
 )
 
-if args.backbone_lr is None:
-    optimizer = optim.AdamW(
-        model.parameters(),
-        lr           = args.lr,
-        weight_decay = args.weight_decay,
-    )
-else:
-    non_backbone_parameters = [
-        parameter
-        for name, parameter in model.named_parameters()
-        if not name.startswith("backbone.")
-    ]
-    optimizer = optim.AdamW(
-        [
-            {
-                "params": model.backbone.parameters(),
-                "lr": args.backbone_lr,
-            },
-            {
-                "params": non_backbone_parameters,
-                "lr": args.lr,
-            },
-        ],
-        weight_decay=args.weight_decay,
-    )
+optimizer = optim.AdamW(
+    model.parameters(),
+    lr           = args.lr,
+    weight_decay = args.weight_decay,
+)
 
 # ─────────────────────────────────────────────
 # Trainer
@@ -229,8 +240,11 @@ if __name__ == "__main__":
     print(f"  top_k       : {args.top_k}")
     print(f"  metric      : {args.distance_metric}")
     print(f"  temperature : {args.temperature}")
-    print(f"  backbone_lr : {args.backbone_lr or args.lr}")
-    print(f"  head_lr     : {args.lr}")
+    print(f"  lr          : {args.lr}")
+    print(f"  weight_decay: {args.weight_decay}")
+    print(f"  smoothing   : {args.label_smoothing}")
+    print(f"  centroid src: {centroid_backbone_type}")
+    print(f"  backbone ckpt: {model.backbone_checkpoint_path}")
     print(f"  device      : {device}")
     print(f"  checkpoint  : {checkpoint_dir}")
     print("=" * 60)

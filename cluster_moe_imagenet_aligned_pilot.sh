@@ -14,8 +14,7 @@ TOP_K=2
 METRIC="cosine"
 TEMPERATURE=0.5
 
-BACKBONE_LR=1e-4
-HEAD_LR=1e-3
+LR=1e-3
 WEIGHT_DECAY=1e-3
 NUM_EPOCHS=400
 BATCH_SIZE=32
@@ -63,8 +62,7 @@ echo "========================================"
 echo "  ImageNet-Aligned Cluster-MoE Pilot"
 echo "========================================"
 echo "  Seeds       : ${SEEDS[*]}"
-echo "  Backbone LR : $BACKBONE_LR"
-echo "  Head LR     : $HEAD_LR"
+echo "  LR          : $LR"
 echo "  Config      : G=$NUM_EXPERTS top_k=$TOP_K $METRIC tau=$TEMPERATURE"
 echo "========================================"
 
@@ -114,8 +112,7 @@ for seed in "${SEEDS[@]}"; do
         --distance_metric "$METRIC" \
         --temperature "$TEMPERATURE" \
         --pretrain_backbone \
-        --lr "$HEAD_LR" \
-        --backbone_lr "$BACKBONE_LR" \
+        --lr "$LR" \
         --weight_decay "$WEIGHT_DECAY" \
         --num_epochs "$NUM_EPOCHS" \
         --batch_size "$BATCH_SIZE" \

@@ -110,6 +110,7 @@ class ImageEmbedding:
             / f"{self.model_name}_backbone"
             / f"seed_{self.seed}"
         )
+        print("Checkpoint path:: ", self.checkpoint_path)
 
 
     def create_model(self, model_name: str) -> nn.Module:

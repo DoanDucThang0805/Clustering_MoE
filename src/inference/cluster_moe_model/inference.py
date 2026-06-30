@@ -245,6 +245,8 @@ def parse_args() -> Namespace:
     parser.add_argument("--batch_size",            type=int,   default=64)
     parser.add_argument("--dataset_name",          type=str,   required=True)
     parser.add_argument("--backbone_type",         type=str,   required=True)
+    parser.add_argument("--centroid_backbone_type", type=str,
+                        help="Backbone namespace containing K-Means centroids")
     parser.add_argument("--backbone_name",         type=str,   required=True)
     parser.add_argument("--model_clustering_name", type=str,   required=True)
     parser.add_argument("--checkpoint",            type=str,   default="best_checkpoint.pth",
@@ -292,7 +294,11 @@ def main() -> None:
     centroids = load_centroids(
         root_dir              = root_dir,
         dataset_name          = args.dataset_name,
-        backbone_type         = args.backbone_type,
+        backbone_type         = (
+            args.centroid_backbone_type
+            if args.centroid_backbone_type is not None
+            else args.backbone_type
+        ),
         backbone_name         = args.backbone_name,
         model_clustering_name = args.model_clustering_name,
         metric                = args.metric,

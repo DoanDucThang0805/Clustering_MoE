@@ -121,6 +121,15 @@ class ClusterMoETrainer:
                 "top_k":               self.model.moe_layer.top_k,
                 "temperature":         self.model.moe_layer.gating.temperature,
                 "metric":              self.model.moe_layer.gating.metric,
+                "backbone_checkpoint": getattr(
+                    self.model, "backbone_checkpoint_path", None
+                ),
+                "centroid_backbone_type": getattr(
+                    self.model, "centroid_backbone_type", None
+                ),
+                "learning_rate":       self.optimizer.defaults["lr"],
+                "weight_decay":        self.optimizer.defaults["weight_decay"],
+                "label_smoothing":     self.criterion.label_smoothing,
             },
             path,
         )

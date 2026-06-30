@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torchvision import models
 import timm
+from pathlib import Path
 
 
 class Mobilenetv3SmallBackboneTorchvision(nn.Module):
@@ -21,6 +22,31 @@ class Mobilenetv3SmallBackboneTorchvision(nn.Module):
         x = self.model.avgpool(x)
         x = torch.flatten(x, 1)
         return x
+
+
+    def load_dense_checkpoint(self, checkpoint_path: str | Path) -> int:
+        """Load only the feature extractor from a fine-tuned dense model."""
+        checkpoint_path = Path(checkpoint_path)
+        if not checkpoint_path.is_file():
+            raise FileNotFoundError(
+                f"Dense backbone checkpoint not found: {checkpoint_path}"
+            )
+
+        checkpoint = torch.load(checkpoint_path, map_location="cpu")
+        state_dict = checkpoint.get("model_state_dict", checkpoint)
+        feature_state_dict = {
+            key.removeprefix("features."): value
+            for key, value in state_dict.items()
+            if key.startswith("features.")
+        }
+
+        if not feature_state_dict:
+            raise ValueError(
+                f"No features.* weights found in dense checkpoint: {checkpoint_path}"
+            )
+
+        self.model.features.load_state_dict(feature_state_dict, strict=True)
+        return len(feature_state_dict)
         
 
 class Mobilenetv3SmallBackboneTimm(nn.Module):

@@ -7,21 +7,24 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Fixed Configuration
 # ─────────────────────────────────────────────
 DATASET_NAME="plantdoc"
-BACKBONE_TYPE="pretrain_backbone"
+BACKBONE_TYPE="dense_aligned_pretrain_backbone"
+CENTROID_BACKBONE_TYPE="pretrain_backbone"
 BACKBONE_NAME="mobilenetv3small_torchvision"
 MODEL_CLUSTERING_NAME="kmeans"
 METRIC="cosine"
 TEMPERATURE=0.5
 PRETRAIN_BACKBONE=true
-LR=1e-3
-WEIGHT_DECAY=1e-3
+LR=3e-4
+WEIGHT_DECAY=1e-2
+LABEL_SMOOTHING=0.05
 NUM_EPOCHS=400
 BATCH_SIZE=32
+FORCE_RETRAIN=false
 
 # ─────────────────────────────────────────────
 # Search Space
 # ─────────────────────────────────────────────
-SEEDS=(42 43 44 45 46 47 48 49 50 51)
+SEEDS=(42 44 45 46 47 48 49 50 51)
 
 # Format: "num_experts top_k"
 CONFIGS=(
@@ -44,6 +47,41 @@ CONFIGS=(
 )
 
 # ─────────────────────────────────────────────
+# CLI
+# ─────────────────────────────────────────────
+usage() {
+    echo "Usage: bash cluster_moe_train.sh [--seed N] [--force]"
+    echo "  --seed N  Run only the selected seed."
+    echo "  --force  Train every selected configuration even if complete checkpoints exist."
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --seed)
+            if [[ $# -lt 2 || "$2" == --* ]]; then
+                echo "[ERROR] --seed requires an integer value."
+                exit 1
+            fi
+            SEEDS=("$2")
+            shift 2
+            ;;
+        --force)
+            FORCE_RETRAIN=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "[ERROR] Unknown argument: $1"
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+# ─────────────────────────────────────────────
 # Functions
 # ─────────────────────────────────────────────
 
@@ -53,6 +91,10 @@ is_done() {
     local seed=$3
     local seed_dir="$SCRIPT_DIR/checkpoints/$DATASET_NAME/clustering_moe/$BACKBONE_TYPE/${BACKBONE_NAME}_backbone/$MODEL_CLUSTERING_NAME/temperature_$TEMPERATURE/G${num_experts}_${METRIC}_top${top_k}/seed_${seed}"
     local run_dir
+
+    if [[ "$FORCE_RETRAIN" == true ]]; then
+        return 1
+    fi
 
     for run_dir in "$seed_dir"/run_*; do
         if [ -f "$run_dir/best_checkpoint.pth" ] &&
@@ -67,7 +109,22 @@ centroid_path() {
     local num_experts=$1
     local seed=$2
 
-    echo "$SCRIPT_DIR/clustering_results/$DATASET_NAME/$BACKBONE_TYPE/${BACKBONE_NAME}_backbone/$MODEL_CLUSTERING_NAME/$METRIC/seed_${seed}/clusters_kmeans_G${num_experts}_seed${seed}.npz"
+    echo "$SCRIPT_DIR/clustering_results/$DATASET_NAME/$CENTROID_BACKBONE_TYPE/${BACKBONE_NAME}_backbone/$MODEL_CLUSTERING_NAME/$METRIC/seed_${seed}/clusters_kmeans_G${num_experts}_seed${seed}.npz"
+}
+
+dense_checkpoint_path() {
+    local seed=$1
+    local seed_dir="$SCRIPT_DIR/checkpoints/$DATASET_NAME/pretrain_baseline/$BACKBONE_NAME/seed_${seed}"
+    local candidate
+    local selected=""
+
+    for candidate in "$seed_dir"/run_*/best_checkpoint.pth; do
+        if [[ -f "$candidate" ]]; then
+            selected="$candidate"
+        fi
+    done
+
+    echo "$selected"
 }
 
 train_one() {
@@ -75,6 +132,7 @@ train_one() {
     local top_k=$2
     local seed=$3
     local pretrained_args=()
+    local dense_checkpoint
 
     echo ""
     echo "  seed=$seed  |  G=$num_experts  |  top_k=$top_k"
@@ -84,18 +142,23 @@ train_one() {
         pretrained_args+=(--pretrain_backbone)
     fi
 
+    dense_checkpoint=$(dense_checkpoint_path "$seed")
+
     python -m training.clustering_moe \
         --seed              "$seed"         \
         --num_experts       "$num_experts"  \
         --top_k             "$top_k"        \
         --distance_metric   "$METRIC"       \
         --temperature       "$TEMPERATURE"  \
+        --backbone_checkpoint "$dense_checkpoint" \
         --lr                "$LR"           \
         --weight_decay      "$WEIGHT_DECAY" \
+        --label_smoothing   "$LABEL_SMOOTHING" \
         --num_epochs        "$NUM_EPOCHS"   \
         --batch_size        "$BATCH_SIZE"   \
         --dataset_name      "$DATASET_NAME" \
         --backbone_type     "$BACKBONE_TYPE" \
+        --centroid_backbone_type "$CENTROID_BACKBONE_TYPE" \
         --backbone_name     "$BACKBONE_NAME" \
         --model_clustering_name "$MODEL_CLUSTERING_NAME" \
         "${pretrained_args[@]}"
@@ -109,6 +172,7 @@ preflight() {
     local top_k
     local seed
     local centroid
+    local dense_checkpoint
 
     if [ ! -f "$SCRIPT_DIR/venv/bin/activate" ]; then
         echo "[ERROR] Virtual environment not found: $SCRIPT_DIR/venv"
@@ -129,6 +193,12 @@ preflight() {
             centroid=$(centroid_path "$num_experts" "$seed")
             if [ ! -f "$centroid" ]; then
                 echo "[ERROR] Missing centroid: $centroid"
+                exit 1
+            fi
+
+            dense_checkpoint=$(dense_checkpoint_path "$seed")
+            if [[ -z "$dense_checkpoint" || ! -f "$dense_checkpoint" ]]; then
+                echo "[ERROR] Missing dense checkpoint for seed $seed"
                 exit 1
             fi
         done
@@ -158,7 +228,13 @@ run_all() {
     echo "========================================"
     echo "  Total configs : ${#CONFIGS[@]}"
     echo "  Seeds         : ${SEEDS[*]}"
+    echo "  Output type   : $BACKBONE_TYPE"
+    echo "  Centroid type : $CENTROID_BACKBONE_TYPE"
+    echo "  LR (all model): $LR"
+    echo "  Weight decay  : $WEIGHT_DECAY"
+    echo "  Label smooth  : $LABEL_SMOOTHING"
     echo "  Total runs    : $total"
+    echo "  Force retrain : $FORCE_RETRAIN"
     echo "  Already done  : $num_skipped"
     echo "  Remaining     : $num_remaining"
     echo "========================================"
