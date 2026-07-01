@@ -22,9 +22,9 @@ MODEL_NAME="mobilenetv3small_torchvision"
 TYPE_MODEL="pretrain_baseline"
 TYPE_BACKBONE="pretrain_backbone"
 WEIGHTS_SOURCE="checkpoint"
-RUN_TIME="run_20260629-123540"
+RUN_TIME="run_20260701-151815"
 SPLIT="all"
-SEED=51
+SEED=43
 BATCH_SIZE=64
 NUM_WORKERS=4
 

@@ -44,6 +44,8 @@ def save_cluster_file(
     num_clusters: int,
     seed: int,
     metric: str,
+    feature_split: str,
+    input_backbone_type: str,
 ) -> None:
 
     output_path.parent.mkdir(
@@ -67,6 +69,9 @@ def save_cluster_file(
         normalize=normalize_method,
         num_clusters=num_clusters,
         seed=seed,
+        feature_split=feature_split,
+        input_backbone_type=input_backbone_type,
+        num_samples=len(cluster_assignments),
     )
 
 
@@ -77,6 +82,8 @@ def train_kmeans(
     seed: int,
     output_dir: Path,
     metric: str,
+    feature_split: str,
+    input_backbone_type: str,
 ) -> None:
 
     print(f"\nTraining KMeans (G={num_clusters})")
@@ -121,6 +128,8 @@ def train_kmeans(
         num_clusters=num_clusters,
         seed=seed,
         metric=metric,
+        feature_split=feature_split,
+        input_backbone_type=input_backbone_type,
     )
 
     print(
@@ -149,6 +158,28 @@ def main():
         "--backbone_type",
         type=str,
         required=True,
+        help="Namespace containing the extracted embedding files.",
+    )
+
+    parser.add_argument(
+        "--output_backbone_type",
+        type=str,
+        help=(
+            "Namespace used for clustering outputs. Defaults to "
+            "--backbone_type."
+        ),
+    )
+
+    parser.add_argument(
+        "--feature_split",
+        type=str,
+        choices=["train", "validation", "test", "all"],
+        default="train",
+        help=(
+            "Embedding split used to fit K-Means. 'all' concatenates "
+            "train, validation and test and is intended only for "
+            "transductive diagnostics."
+        ),
     )
 
     parser.add_argument(
@@ -181,6 +212,7 @@ def main():
 
     dataset_name = args.dataset_name
     backbone_type = args.backbone_type
+    output_backbone_type = args.output_backbone_type or backbone_type
     backbone_name = args.backbone_name
     model_name = "kmeans"
     seed = args.seed
@@ -194,23 +226,51 @@ def main():
         / "feature_embeddings"
     )
 
-    feature_file = (
+    embedding_dir = (
         root_embedding_feature_dir
         / dataset_name
         / backbone_type
         / f"{backbone_name}_backbone"
         / f"seed_{seed}"
-        / f"features_train_seed{seed}.npz"
     )
+    split_names = (
+        ["train", "validation", "test"]
+        if args.feature_split == "all"
+        else [args.feature_split]
+    )
+    feature_parts = []
+    label_parts = []
 
-    if not feature_file.exists():
-        raise FileNotFoundError(
-            f"Feature file not found: {feature_file}"
+    for split_name in split_names:
+        split_tag = "val" if split_name == "validation" else split_name
+        feature_file = (
+            embedding_dir
+            / f"features_{split_tag}_seed{seed}.npz"
         )
+        if not feature_file.exists():
+            raise FileNotFoundError(
+                f"Feature file not found: {feature_file}"
+            )
 
-    data = np.load(feature_file)
+        with np.load(feature_file) as data:
+            split_features = data["features"]
+            split_labels = data["labels"]
 
-    features = data["features"]
+        if len(split_features) != len(split_labels):
+            raise ValueError(
+                f"Feature/label length mismatch in {feature_file}: "
+                f"{len(split_features)} != {len(split_labels)}"
+            )
+
+        print(
+            f"Loaded {split_name}: "
+            f"features={split_features.shape}, labels={split_labels.shape}"
+        )
+        feature_parts.append(split_features)
+        label_parts.append(split_labels)
+
+    features = np.concatenate(feature_parts, axis=0)
+    labels = np.concatenate(label_parts, axis=0)
 
     if metric == "cosine":
         features = normalize(
@@ -218,8 +278,6 @@ def main():
             norm="l2",
             axis=1,
         )
-
-    labels = data["labels"]
 
     print(
         f"Features shape: {features.shape}"
@@ -233,7 +291,7 @@ def main():
         Path(__file__).parents[2]
         / "clustering_results"
         / dataset_name
-        / backbone_type
+        / output_backbone_type
         / f"{backbone_name}_backbone"
         / model_name
         / metric
@@ -249,6 +307,8 @@ def main():
             seed=seed,
             output_dir=output_dir,
             metric=metric,
+            feature_split=args.feature_split,
+            input_backbone_type=backbone_type,
         )
 
 

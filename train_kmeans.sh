@@ -8,7 +8,7 @@ DATASET_NAME="plantdoc"
 BACKBONE_TYPE="pretrain_backbone"
 BACKBONE_NAME="mobilenetv3small_torchvision"
 
-SEEDS=(42 43 44 45 46 47 48 49 50 51)
+SEEDS=(43)
 METRICS=("cosine" "euclidean")
 NUM_CLUSTERS=(2 3 4 5 6 8)
 

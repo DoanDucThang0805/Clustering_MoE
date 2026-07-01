@@ -20,6 +20,7 @@ LABEL_SMOOTHING=0.05
 NUM_EPOCHS=400
 BATCH_SIZE=32
 FORCE_RETRAIN=false
+BACKBONE_CHECKPOINT=""
 
 # ─────────────────────────────────────────────
 # Search Space
@@ -50,9 +51,12 @@ CONFIGS=(
 # CLI
 # ─────────────────────────────────────────────
 usage() {
-    echo "Usage: bash cluster_moe_train.sh [--seed N] [--force]"
+    echo "Usage: bash cluster_moe_train.sh [options]"
     echo "  --seed N  Run only the selected seed."
-    echo "  --force  Train every selected configuration even if complete checkpoints exist."
+    echo "  --backbone_type TYPE           Checkpoint output namespace."
+    echo "  --centroid_backbone_type TYPE  K-Means centroid namespace."
+    echo "  --backbone_checkpoint PATH     Exact dense checkpoint used to initialize the backbone."
+    echo "  --force                        Retrain even if complete checkpoints exist."
 }
 
 while [[ $# -gt 0 ]]; do
@@ -68,6 +72,30 @@ while [[ $# -gt 0 ]]; do
         --force)
             FORCE_RETRAIN=true
             shift
+            ;;
+        --backbone_type|--backbone-type)
+            if [[ $# -lt 2 || "$2" == --* ]]; then
+                echo "[ERROR] $1 requires a value."
+                exit 1
+            fi
+            BACKBONE_TYPE="$2"
+            shift 2
+            ;;
+        --centroid_backbone_type|--centroid-backbone-type)
+            if [[ $# -lt 2 || "$2" == --* ]]; then
+                echo "[ERROR] $1 requires a value."
+                exit 1
+            fi
+            CENTROID_BACKBONE_TYPE="$2"
+            shift 2
+            ;;
+        --backbone_checkpoint|--backbone-checkpoint)
+            if [[ $# -lt 2 || "$2" == --* ]]; then
+                echo "[ERROR] $1 requires a path."
+                exit 1
+            fi
+            BACKBONE_CHECKPOINT="$2"
+            shift 2
             ;;
         -h|--help)
             usage
@@ -117,6 +145,11 @@ dense_checkpoint_path() {
     local seed_dir="$SCRIPT_DIR/checkpoints/$DATASET_NAME/pretrain_baseline/$BACKBONE_NAME/seed_${seed}"
     local candidate
     local selected=""
+
+    if [[ -n "$BACKBONE_CHECKPOINT" ]]; then
+        echo "$BACKBONE_CHECKPOINT"
+        return
+    fi
 
     for candidate in "$seed_dir"/run_*/best_checkpoint.pth; do
         if [[ -f "$candidate" ]]; then
@@ -230,6 +263,7 @@ run_all() {
     echo "  Seeds         : ${SEEDS[*]}"
     echo "  Output type   : $BACKBONE_TYPE"
     echo "  Centroid type : $CENTROID_BACKBONE_TYPE"
+    echo "  Backbone ckpt : ${BACKBONE_CHECKPOINT:-latest complete baseline run per seed}"
     echo "  LR (all model): $LR"
     echo "  Weight decay  : $WEIGHT_DECAY"
     echo "  Label smooth  : $LABEL_SMOOTHING"
