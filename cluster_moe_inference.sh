@@ -7,12 +7,12 @@ set -euo pipefail
 
 # Default configuration
 DATASET_NAME="plantdoc"
-BACKBONE_TYPE="pretrain_backbone"
-CENTROID_BACKBONE_TYPE=""
+BACKBONE_TYPE="dense_aligned_pretrain_backbone"
+CENTROID_BACKBONE_TYPE="pretrain_backbone"
 BACKBONE_NAME="mobilenetv3small_torchvision"
 MODEL_CLUSTERING_NAME="kmeans"
 
-SEED=43
+SEED=46
 NUM_EXPERTS=4
 TOP_K=2
 METRIC="cosine"
@@ -21,7 +21,7 @@ PRETRAIN_BACKBONE=true
 
 BATCH_SIZE=32
 CHECKPOINT="best_checkpoint.pth"
-RUN_TIME=""
+RUN_TIME="run_20260701-164736"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
