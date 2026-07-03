@@ -11,7 +11,7 @@ class Mobilenetv3SmallBackboneTorchvision(nn.Module):
         self.output_dim = 576
 
         if self.pretrained:
-            self.model=models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.IMAGENET1K_V1),
+            self.model=models.mobilenet_v3_small(weights=models.MobileNet_V3_Small_Weights.IMAGENET1K_V1)
         else:
             self.model=models.mobilenet_v3_small()
 

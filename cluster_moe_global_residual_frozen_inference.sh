@@ -5,8 +5,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PYTHON="$SCRIPT_DIR/venv/bin/python"
 
 DATASET_NAME="plantdoc"
-BACKBONE_TYPE="dense_global_residual_frozen_pretrain_backbone"
-CENTROID_BACKBONE_TYPE="pretrain_backbone"
+BACKBONE_TYPE="dense_global_residual_frozen_run140028"
+CENTROID_BACKBONE_TYPE="pretrain_backbone_run140028"
 BACKBONE_NAME="mobilenetv3small_torchvision"
 MODEL_CLUSTERING_NAME="kmeans"
 SEED=46
