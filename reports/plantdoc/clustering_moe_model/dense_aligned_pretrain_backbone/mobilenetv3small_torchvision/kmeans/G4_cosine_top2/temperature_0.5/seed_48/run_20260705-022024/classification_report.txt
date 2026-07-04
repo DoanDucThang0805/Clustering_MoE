@@ -1,0 +1,16 @@
+Test Accuracy: 87.02%
+
+                            precision    recall  f1-score   support
+
+  Tomato Early blight leaf     0.7500    0.6000    0.6667        20
+ Tomato Septoria leaf spot     0.8605    0.8810    0.8706        42
+               Tomato leaf     0.9286    0.9750    0.9512        40
+Tomato leaf bacterial spot     0.8000    0.7407    0.7692        27
+   Tomato leaf late blight     0.7778    0.9545    0.8571        22
+  Tomato leaf mosaic virus     0.7931    0.8846    0.8364        26
+  Tomato leaf yellow virus     0.9615    0.9494    0.9554        79
+          Tomato mold leaf     0.8400    0.7241    0.7778        29
+
+                  accuracy                         0.8702       285
+                 macro avg     0.8389    0.8387    0.8356       285
+              weighted avg     0.8699    0.8702    0.8679       285

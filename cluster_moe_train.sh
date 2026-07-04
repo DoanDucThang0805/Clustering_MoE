@@ -16,16 +16,16 @@ TEMPERATURE=0.5
 PRETRAIN_BACKBONE=true
 LR=3e-4
 WEIGHT_DECAY=1e-2
-LABEL_SMOOTHING=0.05
+LABEL_SMOOTHING=0
 NUM_EPOCHS=400
 BATCH_SIZE=32
 FORCE_RETRAIN=false
-BACKBONE_CHECKPOINT=""
+BACKBONE_CHECKPOINT="/media/data/minhht/clustering_moe/checkpoints/plantdoc/pretrain_baseline/mobilenetv3small_torchvision/seed_48/run_20260704-205832/best_checkpoint.pth"
 
 # ─────────────────────────────────────────────
 # Search Space
 # ─────────────────────────────────────────────
-SEEDS=(42 44 45 46 47 48 49 50 51)
+SEEDS=(48)
 
 # Format: "num_experts top_k"
 CONFIGS=(
