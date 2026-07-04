@@ -38,7 +38,7 @@ set_seed(args.seed)
 # from models.pretrain_baseline.mobilenetv3small import model
 
 
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 generator = torch.Generator()
 generator.manual_seed(args.seed)
 
