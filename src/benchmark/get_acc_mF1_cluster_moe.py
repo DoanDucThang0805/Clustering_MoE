@@ -304,17 +304,25 @@ class GetAccandmF1ScoreClusterMoE:
         Raises:
             FileNotFoundError: If the centroid file does not exist.
         """
-        path = (
-            Path(__file__).parents[2]
-            / "clustering_results"
-            / dataset_name
-            / backbone_type
-            / f"{backbone_name}_backbone"
-            / model_clustering_name
-            / metric
-            / f"seed_{seed}"
-            / f"clusters_kmeans_G{num_experts}_seed{seed}.npz"
-        )
+        def _centroid_path(bb_type: str) -> Path:
+            return (
+                Path(__file__).parents[2]
+                / "clustering_results"
+                / dataset_name
+                / bb_type
+                / f"{backbone_name}_backbone"
+                / model_clustering_name
+                / metric
+                / f"seed_{seed}"
+                / f"clusters_kmeans_G{num_experts}_seed{seed}.npz"
+            )
+
+        path = _centroid_path(backbone_type)
+        # dense_aligned_* checkpoints store centroids from the pretrain_backbone
+        # namespace; the npz values are overwritten by load_state_dict anyway,
+        # so fall back there when the checkpoint's own namespace has no centroids.
+        if not path.exists():
+            path = _centroid_path("pretrain_backbone")
         if not path.exists():
             raise FileNotFoundError(f"Centroid file not found:\n  {path}")
 
@@ -589,6 +597,7 @@ def main():
                            "pretrain_backbone",
                            "non_pretrain_backbone",
                            "imagenet_initialization_backbone",
+                           "dense_aligned_pretrain_backbone",
                        ])
     parser.add_argument("--backbone_name", type=str, required=True,
                        choices=["mobilenetv3small_torchvision", "mobilenetv3small_timm"])
