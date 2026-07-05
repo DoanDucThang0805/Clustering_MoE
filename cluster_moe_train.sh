@@ -20,12 +20,12 @@ LABEL_SMOOTHING=0
 NUM_EPOCHS=400
 BATCH_SIZE=32
 FORCE_RETRAIN=false
-BACKBONE_CHECKPOINT="/media/data/minhht/clustering_moe/checkpoints/plantdoc/pretrain_baseline/mobilenetv3small_torchvision/seed_48/run_20260704-205832/best_checkpoint.pth"
+BACKBONE_CHECKPOINT="/media/data/minhht/clustering_moe/checkpoints/plantdoc/pretrain_baseline/mobilenetv3small_torchvision/seed_49/run_20260705-032101/best_checkpoint.pth"
 
 # ─────────────────────────────────────────────
 # Search Space
 # ─────────────────────────────────────────────
-SEEDS=(48)
+SEEDS=(49)
 
 # Format: "num_experts top_k"
 CONFIGS=(

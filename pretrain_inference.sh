@@ -14,7 +14,7 @@ SEED=49
 
 # Example: RUN_TIME="run_20260701-140028"
 # Leave empty to automatically use the newest run containing best_checkpoint.pth.
-RUN_TIME="run_20260705-032101"
+RUN_TIME="run_20260705-132128"
 
 usage() {
     cat <<EOF

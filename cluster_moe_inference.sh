@@ -12,7 +12,7 @@ CENTROID_BACKBONE_TYPE="pretrain_backbone"
 BACKBONE_NAME="mobilenetv3small_torchvision"
 MODEL_CLUSTERING_NAME="kmeans"
 
-SEED=48
+SEED=49
 NUM_EXPERTS=4
 TOP_K=2
 METRIC="cosine"
@@ -21,7 +21,7 @@ PRETRAIN_BACKBONE=true
 
 BATCH_SIZE=32
 CHECKPOINT="best_checkpoint.pth"
-RUN_TIME="run_20260705-022024"
+RUN_TIME="run_20260705-110126"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"

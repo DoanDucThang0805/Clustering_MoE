@@ -20,11 +20,11 @@ PYTHON="$SCRIPT_DIR/venv/bin/python"
 DATASET_NAME="plantdoc"
 MODEL_NAME="mobilenetv3small_torchvision"
 TYPE_MODEL="pretrain_baseline"
-TYPE_BACKBONE="pretrain_backbone_seed47_run172432"
+TYPE_BACKBONE="pretrain_backbone"
 WEIGHTS_SOURCE="checkpoint"
-RUN_TIME="run_20260704-205832"
+RUN_TIME="run_20260705-032101"
 SPLIT="all"
-SEED=48
+SEED=49
 BATCH_SIZE=64
 NUM_WORKERS=4
 
