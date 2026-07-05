@@ -21,7 +21,7 @@ PRETRAIN_BACKBONE=true
 
 BATCH_SIZE=32
 CHECKPOINT="best_checkpoint.pth"
-RUN_TIME="run_20260705-110126"
+RUN_TIME="run_20260705-134041"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"

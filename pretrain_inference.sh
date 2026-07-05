@@ -10,11 +10,11 @@ PYTHON="$SCRIPT_DIR/venv/bin/python"
 DATASET_NAME="plantdoc"
 TYPE_MODEL="pretrain_baseline"
 MODEL_NAME="mobilenetv3small_torchvision"
-SEED=49
+SEED=50
 
 # Example: RUN_TIME="run_20260701-140028"
 # Leave empty to automatically use the newest run containing best_checkpoint.pth.
-RUN_TIME="run_20260705-132128"
+RUN_TIME="run_20260705-163207"
 
 usage() {
     cat <<EOF
