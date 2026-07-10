@@ -84,7 +84,7 @@ trainer = Trainer(
         / "checkpoints"
         / "plantdoc"
         / "pretrain_baseline"
-        / "mobilenetv3small_torchvision"
+        / "mobilenetv3small_torchvision_retrain1"
         / f"seed_{args.seed}"
     )
 )

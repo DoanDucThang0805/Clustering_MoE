@@ -1,0 +1,2 @@
+num_seeds,accuracy_mean,accuracy_std,macro_f1_mean,macro_f1_std
+10,0.82209,0.01629658791826613,0.7887600000000001,0.01976563797210815

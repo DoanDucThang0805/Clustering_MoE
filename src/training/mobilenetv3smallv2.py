@@ -81,8 +81,8 @@ trainer = Trainer(
         output_dir
         / "checkpoints"
         / "plantdoc"
-        / "pretrain_models"
-        / "mobilenetv3small_timm_lamb1k"
+        / "pretrain_baseline"
+        / "mobilenetv3small_timm_lamb1k_retrain2"
         / f"seed_{args.seed}"
     )
 )
