@@ -1,0 +1,7 @@
+initialization,model,n_seeds,accuracy_mean,accuracy_std,macro_f1_mean,macro_f1_std,weighted_f1_mean,weighted_f1_std,params_m,flops_g
+from_scratch,dense,5,0.7656,0.012,0.7306,0.0152,0.7648,0.0112,1.5261,0.1229
+from_scratch,learned_gate_moe,5,0.7839,0.0072,0.7498,0.0109,0.7815,0.0079,3.4845,0.1269
+from_scratch,cluster_moe,5,0.8028,0.0215,0.7669,0.0295,0.8015,0.0217,3.4772,0.1268
+imagenet_pretrained,dense,10,0.8519,0.0161,0.8211,0.0215,0.8501,0.0163,1.5261,0.1229
+imagenet_pretrained,learned_gate_moe,10,0.8579,0.0076,0.8253,0.0097,0.855,0.0074,3.4845,0.1269
+imagenet_pretrained,cluster_moe,10,0.8727,0.0072,0.8452,0.0105,0.8708,0.0073,3.4772,0.1268

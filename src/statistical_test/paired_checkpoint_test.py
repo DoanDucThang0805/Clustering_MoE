@@ -16,7 +16,7 @@ from typing import Literal
 
 import numpy as np
 import torch
-from scipy.stats import ttest_rel, wilcoxon
+from scipy.stats import ttest_rel, wilcoxon, norm, t as tdist
 from sklearn.metrics import accuracy_score, f1_score
 from torch import nn
 from torch.utils.data import DataLoader
@@ -669,17 +669,191 @@ def main(output_csv: str | Path) -> list[dict]:
     return rows
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# CP4 — 10-seed pretrained: seedwise + extended paired stats + power analysis
+# Tái dùng holm_bonferroni / benjamini_hochberg ở trên (không viết lại).
+# Khác chế độ pilot: đọc per-seed acc/macro_f1/weighted_f1 từ CP1 CSV (KHÔNG
+# inference lại), 10 seed pretrained, 3 model chính, + std_diff/CI95/d_z + power.
+# ═══════════════════════════════════════════════════════════════════════════
+import math
+
+CP4_MODELS = ("dense", "learned_gate_moe", "cluster_moe")
+CP4_ROUTING = {"dense": "none", "learned_gate_moe": "learned", "cluster_moe": "cosine"}
+# params_m, flops_g (params_flops.csv) + latency_ms (edge Pi ONNX)
+CP4_COMPLEXITY = {
+    "dense":            dict(params_m=1.5261, flops_g=0.1229, latency_ms=6.2622),
+    "learned_gate_moe": dict(params_m=3.4845, flops_g=0.1269, latency_ms=8.2498),
+    "cluster_moe":      dict(params_m=3.4772, flops_g=0.1268, latency_ms=7.9588),
+}
+CP4_PAIRS = (("cluster_moe", "dense"), ("cluster_moe", "learned_gate_moe"),
+             ("learned_gate_moe", "dense"))
+CP4_METRICS = ("accuracy", "macro_f1")
+CP4_ALPHA, CP4_POWER = 0.05, 0.80
+
+
+def cp4_load_per_seed(cp1_csv: Path) -> dict[str, dict[int, dict[str, float]]]:
+    """model -> {seed: {accuracy, macro_f1, weighted_f1}} cho init pretrained."""
+    data: dict[str, dict[int, dict[str, float]]] = {m: {} for m in CP4_MODELS}
+    with open(cp1_csv) as f:
+        for r in csv.DictReader(f):
+            if r["initialization"] != "imagenet_pretrained":
+                continue
+            data[r["model"]][int(r["seed"])] = {
+                k: float(r[k]) for k in ("accuracy", "macro_f1", "weighted_f1")
+            }
+    return data
+
+
+def cp4_write_seedwise(data, seeds, out_csv: Path) -> None:
+    fields = ["seed", "dataset", "initialization", "backbone", "model", "routing",
+              "G", "top_k", "tau", "accuracy", "macro_f1", "weighted_f1",
+              "params_m", "flops_g", "latency_ms"]
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
+    with out_csv.open("w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fields)
+        w.writeheader()
+        for mdl in CP4_MODELS:
+            for s in seeds:
+                d = data[mdl][s]
+                w.writerow({
+                    "seed": s, "dataset": "plantdoc",
+                    "initialization": "imagenet_pretrained",
+                    "backbone": "mobilenetv3small", "model": mdl,
+                    "routing": CP4_ROUTING[mdl],
+                    "G": 4 if mdl != "dense" else "",
+                    "top_k": 2 if mdl != "dense" else "",
+                    "tau": 0.5 if mdl != "dense" else "",
+                    "accuracy": round(d["accuracy"], 4),
+                    "macro_f1": round(d["macro_f1"], 4),
+                    "weighted_f1": round(d["weighted_f1"], 4),
+                    **CP4_COMPLEXITY[mdl],
+                })
+
+
+def cp4_run(cp1_csv: Path, out_dir: Path) -> None:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    data = cp4_load_per_seed(cp1_csv)
+    seeds = sorted(data["cluster_moe"])
+    n = len(seeds)
+    if not all(len(data[m]) == n for m in CP4_MODELS):
+        raise AssertionError("3 model phải cùng số seed")
+
+    cp4_write_seedwise(data, seeds, out_dir / "seedwise_main_results.csv")
+
+    t_crit = float(tdist.ppf(1 - CP4_ALPHA / 2, df=n - 1))
+    z_beta = float(norm.ppf(CP4_POWER))
+
+    ps_fields = ["metric", "model_a", "model_b", "n_seeds", "mean_a", "mean_b",
+                 "mean_diff", "std_diff", "ci95_low", "ci95_high", "paired_t_p",
+                 "wilcoxon_p", "holm_p", "bh_p", "effect_size_dz"]
+    pw_fields = ["comparison", "metric", "alpha", "power_target", "pilot_mean_diff",
+                 "pilot_std_diff", "effect_size_dz", "required_n_uncorrected",
+                 "required_n_holm", "current_n", "decision"]
+    ps_rows, pw_rows = [], []
+
+    for metric in CP4_METRICS:
+        recs = []
+        for a, b in CP4_PAIRS:
+            xa = np.array([data[a][s][metric] for s in seeds])
+            xb = np.array([data[b][s][metric] for s in seeds])
+            mean_delta, t_p, w_p = paired_tests_free(xa, xb)  # reuse-friendly helper
+            std_diff = float((xa - xb).std(ddof=1))
+            dz = mean_delta / std_diff if std_diff > 0 else float("inf")
+            recs.append(dict(a=a, b=b, xa=xa, xb=xb, mean_diff=mean_delta,
+                             std_diff=std_diff, t_p=t_p, w_p=w_p, dz=dz))
+        # Holm/BH trong cùng metric family (m = số cặp = 3) — tái dùng helper pilot
+        holm = holm_bonferroni([r["t_p"] for r in recs])
+        bh = benjamini_hochberg([r["t_p"] for r in recs])
+
+        for r, hp, bp in zip(recs, holm, bh):
+            se = r["std_diff"] / math.sqrt(n)
+            ps_rows.append({
+                "metric": metric, "model_a": r["a"], "model_b": r["b"], "n_seeds": n,
+                "mean_a": round(float(r["xa"].mean()), 4),
+                "mean_b": round(float(r["xb"].mean()), 4),
+                "mean_diff": round(r["mean_diff"], 4), "std_diff": round(r["std_diff"], 4),
+                "ci95_low": round(r["mean_diff"] - t_crit * se, 4),
+                "ci95_high": round(r["mean_diff"] + t_crit * se, 4),
+                "paired_t_p": round(r["t_p"], 4), "wilcoxon_p": round(r["w_p"], 4),
+                "holm_p": round(hp, 4), "bh_p": round(bp, 4),
+                "effect_size_dz": round(r["dz"], 4),
+            })
+            dz_abs = abs(r["dz"])
+
+            def req_n(alpha):
+                z_a = float(norm.ppf(1 - alpha / 2))
+                return int(math.ceil(((z_a + z_beta) / dz_abs) ** 2)) if dz_abs > 0 else 10 ** 9
+
+            req_holm = req_n(CP4_ALPHA / len(CP4_PAIRS))
+            decision = ("sufficient" if n >= req_holm
+                        else "insufficient - report measured gain under protocol")
+            pw_rows.append({
+                "comparison": f"{r['a']}_vs_{r['b']}", "metric": metric,
+                "alpha": CP4_ALPHA, "power_target": CP4_POWER,
+                "pilot_mean_diff": round(r["mean_diff"], 4),
+                "pilot_std_diff": round(r["std_diff"], 4),
+                "effect_size_dz": round(r["dz"], 4),
+                "required_n_uncorrected": req_n(CP4_ALPHA),
+                "required_n_holm": req_holm, "current_n": n, "decision": decision,
+            })
+
+    for path, fields, rows in [
+        (out_dir / "paired_statistics_extended.csv", ps_fields, ps_rows),
+        (out_dir / "power_analysis.csv", pw_fields, pw_rows),
+    ]:
+        with path.open("w", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=fields)
+            w.writeheader()
+            w.writerows(rows)
+
+    print(f"CP4  n_seeds={n}  seeds={seeds}")
+    for r in ps_rows:
+        sig = "SIG" if r["holm_p"] < CP4_ALPHA else "ns "
+        print(f"  [{r['metric']:8s}] {r['model_a']:16s} - {r['model_b']:16s} "
+              f"Δ={r['mean_diff']:+.4f} holm={r['holm_p']:.4f} [{sig}] dz={r['effect_size_dz']:+.3f}")
+    for r in pw_rows:
+        print(f"  power {r['comparison']:32s}[{r['metric']:8s}] req_n(holm)={r['required_n_holm']:>4} "
+              f"cur={r['current_n']} -> {r['decision']}")
+    print(f"Saved 3 CSV -> {out_dir}")
+
+
+def paired_tests_free(a: np.ndarray, b: np.ndarray) -> tuple[float, float, float]:
+    """Như paired_tests nhưng không ràng buộc shape = len(SEEDS) (cho CP4 n=10)."""
+    delta = a - b
+    mean_delta = float(delta.mean())
+    if np.allclose(delta, 0.0):
+        return mean_delta, 1.0, 1.0
+    t_p = 0.0 if np.isclose(delta.std(ddof=1), 0.0) else float(ttest_rel(a, b).pvalue)
+    try:
+        w_p = float(wilcoxon(a, b).pvalue)
+    except ValueError:
+        w_p = 1.0
+    return mean_delta, t_p, w_p
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description=(
-            "PlantDoc seed-wise paired tests with Cluster-MoE G4 cosine top-2 "
-            "as model A."
-        )
+        description="PlantDoc paired tests. mode=pilot (5-seed non-pretrained, "
+                    "inference) hoặc mode=cp4 (10-seed pretrained từ CP1 CSV + power)."
     )
+    parser.add_argument("--mode", choices=["pilot", "cp4"], default="pilot")
     parser.add_argument(
         "--output_csv",
         default=str(REPO_ROOT / "reports" / "statistical_test" / "plantdoc" / "paired_statistics.csv"),
-        help="Destination CSV path.",
+        help="[pilot] Destination CSV path.",
+    )
+    parser.add_argument(
+        "--cp1_csv",
+        default=str(REPO_ROOT / "paper_results" / "tables" / "pretrained_backbone_results.csv"),
+        help="[cp4] Nguồn per-seed pretrained (CP1).",
+    )
+    parser.add_argument(
+        "--out_dir",
+        default=str(REPO_ROOT / "paper_results" / "tables"),
+        help="[cp4] Thư mục xuất 3 CSV CP4.",
     )
     arguments = parser.parse_args()
-    main(arguments.output_csv)
+    if arguments.mode == "cp4":
+        cp4_run(Path(arguments.cp1_csv), Path(arguments.out_dir))
+    else:
+        main(arguments.output_csv)
