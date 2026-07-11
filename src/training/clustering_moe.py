@@ -96,7 +96,8 @@ args = parser.parse_args()
 # ─────────────────────────────────────────────
 set_seed(args.seed)
 
-from datasets.plantdoc_dataset import train_dataset, validation_dataset
+from datasets.registry import get_train_val
+train_dataset, validation_dataset = get_train_val(args.dataset_name)
 
 # ─────────────────────────────────────────────
 # DataLoaders

@@ -8,6 +8,7 @@ set -euo pipefail
 
 # Defaults (match src/training/moe.py)
 SEEDS=(42 43 44 45 46 47 48 49 50 51)
+DATASET_NAME="plantdoc"
 TYPE_MODEL="moe_temperature_0.5_pretrain_backbone"
 NUM_EXPERTS=4
 TOP_K=2
@@ -68,6 +69,7 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --seed) SEEDS=("$2"); shift 2;;
         --seeds) read -r -a SEEDS <<< "$2"; shift 2;;
+        --dataset_name) DATASET_NAME="$2"; shift 2;;
         --force) FORCE_RETRAIN=true; shift;;
         --type_model) TYPE_MODEL="$2"; shift 2;;
         --num_experts) NUM_EXPERTS="$2"; shift 2;;
@@ -99,7 +101,7 @@ fi
 # Đã có checkpoint hoàn chỉnh cho seed này chưa?
 is_done() {
     local seed=$1
-    local seed_dir="$SCRIPT_DIR/checkpoints/plantdoc/$TYPE_MODEL/${BACKBONE_NAME}_moe/${NUM_EXPERTS}_experts/top_${TOP_K}/seed_${seed}"
+    local seed_dir="$SCRIPT_DIR/checkpoints/$DATASET_NAME/$TYPE_MODEL/${BACKBONE_NAME}_moe/${NUM_EXPERTS}_experts/top_${TOP_K}/seed_${seed}"
     local run_dir
 
     [[ "$FORCE_RETRAIN" == true ]] && return 1
@@ -135,6 +137,7 @@ train_one() {
 
     ( cd src && python -m training.moe \
         --seed "$seed" \
+        --dataset_name "$DATASET_NAME" \
         --type_model "$TYPE_MODEL" \
         --num_experts "$NUM_EXPERTS" \
         --top_k "$TOP_K" \

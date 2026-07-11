@@ -122,7 +122,14 @@ class ImageEmbedding:
     def load_checkpoint(self, model_name: str, checkpoint_path: Path) -> nn.Module:
         model      = self.create_model(model_name)
         checkpoint = torch.load(checkpoint_path, map_location=self.device)
-        model.load_state_dict(checkpoint["model_state_dict"])
+        # Chỉ load trọng số backbone (features.*); bỏ classifier vì embedding chỉ
+        # dùng model.features. Cho phép checkpoint có số lớp khác (PlantDoc 8 /
+        # PlantVillage 10) mà không lỗi shape mismatch ở head.
+        state_dict = {
+            k: v for k, v in checkpoint["model_state_dict"].items()
+            if not k.startswith("classifier")
+        }
+        model.load_state_dict(state_dict, strict=False)
         return model
 
 

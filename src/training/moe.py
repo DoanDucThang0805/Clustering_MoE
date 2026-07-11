@@ -17,7 +17,7 @@ import torch.optim as optim
 from sklearn.utils.class_weight import compute_class_weight
 
 from utils.moe_trainer import MoETrainer
-from datasets.plantdoc_dataset_moe import build_datasets
+from datasets.registry import get_moe_build
 from models.moe.model import MoEModel
 from loss.loss_fn import MoELoss
 
@@ -68,6 +68,13 @@ def get_args():
     )
 
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
+
+    parser.add_argument(
+        "--dataset_name",
+        type=str,
+        default="plantdoc",
+        help="plantdoc | plantvillage (chọn dataset + namespace checkpoint)"
+    )
 
     parser.add_argument(
         "--type_model",
@@ -211,7 +218,7 @@ def main():
     checkpoint_dir = (
         output_dir
         / "checkpoints"
-        / "plantdoc"
+        / args.dataset_name
         / args.type_model
         / f"{args.backbone_name}_moe"
         / f"{args.num_experts}_experts"
@@ -222,6 +229,7 @@ def main():
     # -------------------------------------------------------------------------
     # DataLoader (seeded)
     # -------------------------------------------------------------------------
+    build_datasets = get_moe_build(args.dataset_name)
     train_dataset, validation_dataset, _ = build_datasets(use_context=args.use_context)
     g = torch.Generator()
     g.manual_seed(args.seed)

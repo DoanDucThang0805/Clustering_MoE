@@ -11,6 +11,7 @@ from sklearn.utils.class_weight import compute_class_weight
 
 from utils.baseline_trainer import Trainer
 from models.pretrain_baseline.mobilenetv3smallv2 import model
+from datasets.registry import get_train_val
 
 
 def set_seed(seed=42):
@@ -27,13 +28,15 @@ def set_seed(seed=42):
 
 parse = ArgumentParser()
 parse.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+parse.add_argument("--dataset_name", type=str, default="plantdoc",
+                   help="plantdoc | plantvillage (chọn dataset + namespace checkpoint)")
 args = parse.parse_args()
 
 # Set seed BEFORE building datasets to ensure reproducible splits
 set_seed(args.seed)
 
-# Import and build datasets AFTER seed is set
-from datasets.plantdoc_dataset import train_dataset, validation_dataset
+# Build datasets AFTER seed is set, theo dataset_name (registry)
+train_dataset, validation_dataset = get_train_val(args.dataset_name)
 
 
 BATCH_SIZE = 64
@@ -59,6 +62,9 @@ output_dir = Path.cwd().parents[0]
 labels = train_dataset.labels
 num_classes = len(set(labels))
 
+# Rebuild head theo num_classes (PlantDoc 8 / PlantVillage 10) — timm reset_classifier
+model.reset_classifier(num_classes)
+
 class_weights = compute_class_weight(
     class_weight='balanced',
     classes=np.arange(num_classes),
@@ -80,9 +86,9 @@ trainer = Trainer(
     checkpoints_dir=str(
         output_dir
         / "checkpoints"
-        / "plantdoc"
+        / args.dataset_name
         / "pretrain_baseline"
-        / "mobilenetv3small_timm_lamb1k_retrain2"
+        / "mobilenetv3small_timm_lamb1k"
         / f"seed_{args.seed}"
     )
 )
