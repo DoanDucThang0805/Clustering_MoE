@@ -15,7 +15,8 @@ ONNX_MODEL_PATHS = {
     "mobilenetv3_small_baseline": onnx_root_dir / "mobilenetv3small_torchvision.onnx",
     "mobilenetv3_small_moe": onnx_root_dir / "moe_mobilenetv3_torchvision_backbone.onnx",
     "cluster_moe": onnx_root_dir / "clustering_moe_cosine_mobilenetv3_torchvision_backbone.onnx",
-    "hybrid_moe": onnx_root_dir / "hybrid_moe_mobilenetv3_torchvision_backbone.onnx"
+    "hybrid_moe": onnx_root_dir / "hybrid_moe_mobilenetv3_torchvision_backbone.onnx",
+    "soft_moe": onnx_root_dir / "soft_moe_mobilenetv3_torchvision_backbone.onnx",
 }
 
 

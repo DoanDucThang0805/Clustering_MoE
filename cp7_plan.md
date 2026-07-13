@@ -9,9 +9,9 @@ Tài liệu cho 2 phương án:
 ## Phương án A — Implement Soft MoE classifier-side
 ### Thiết kế (baseline MỚI, không đụng model hiện có)
 - File mới `src/models/soft_moe/model.py` — `SoftMoEModel`:
-  - Backbone: `BACKBONE_REGISTRY` dùng chung (mobilenetv3small_torchvision, pretrained=True).
+  - Backbone: MobileNetV3-Small torchvision pretrained; chỉ giữ `model.features` để lấy feature map `[B, 576, 7, 7]`, không giữ classifier ImageNet không dùng.
   - Soft routing classifier-side theo tinh thần Soft MoE (Puigcerver et al.): thay top-k dispatch bằng **soft assignment qua slot**:
-    - dispatch: `D = softmax(X W, axis=slots)`, slot input = D^T X; mỗi expert xử lý slot của nó; combine: `C = softmax(X W, axis=experts·slots)`, output = C · expert_outputs.
+    - Với từng ảnh, dispatch `D = softmax(X W, axis=tokens)` để mỗi slot là tổ hợp của các spatial token; combine `C = softmax(X W, axis=experts·slots)` để đưa expert outputs trở lại từng token. Không chuẩn hóa hoặc trộn qua chiều batch.
     - Cấu hình tối thiểu: 4 expert × 1 slot/expert (so sánh công bằng E=4), expert MLP y hệt expert hiện tại (Linear 576→1024→576, LN, GELU, Dropout 0.1).
   - Residual + LayerNorm + classifier head y hệt `MoEModel` (copy) — chỉ khác cơ chế routing.
 - Trainer: dùng lại `MoETrainer` được KHÔNG? — Không thẳng được (loss aux + chữ ký forward khác). Viết `src/utils/soft_moe_trainer.py` copy `moe_trainer.py`, bỏ auxiliary loss (Soft MoE không cần load-balance loss vì mọi expert đều nhận gradient), criterion = CrossEntropy weighted như dense.
@@ -19,8 +19,8 @@ Tài liệu cho 2 phương án:
 
 ### Chạy
 - Seeds {42,43,44,45,46} (5 seed đủ cho một hàng baseline; 10 nếu rảnh GPU).
-- Script `soft_moe_train.sh` copy pattern `moe_train.sh` (loop seed + is_done).
-- Inference + report: copy `src/inference/moe_model/inference.py` chỉnh forward.
+- Script `run_cp7_pipeline.sh` chạy tuần tự, idempotent, sau đó gọi evaluator và ONNX exporter.
+- Inference + report: `src/benchmark/cp7_results.py` tải đúng metadata checkpoint và xuất CSV 5 seed.
 - Đo params/FLOPs (`param_flops.py`) — LƯU Ý claim: Soft MoE kích hoạt TẤT CẢ expert mỗi mẫu → active FLOPs cao hơn Cluster-MoE top-2; đây chính là điểm bài muốn nhấn (active computational cost).
 
 ### CSV
@@ -28,7 +28,7 @@ Tài liệu cho 2 phương án:
 seed,dataset,backbone,model,num_experts,routing_type,
 accuracy,macro_f1,weighted_f1,params_m,flops_g,latency_ms
 ```
-→ `mean_acc_mF1_results/soft_moe_baseline.csv`.
+→ `paper_results/tables/soft_moe_baseline.csv`.
 
 ## Phương án B — Hạ xuống Related Work (nếu chọn)
 - Không code. Tạo ghi chú `soft_moe_decision.md`: "Soft MoE not implemented as baseline; discussed in Related Work. Difference: Soft MoE uses dense soft slot assignment (all experts active per sample), our work studies cluster-prototype top-k routing for classifier-side expert selection with bounded active cost."
