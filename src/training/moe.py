@@ -170,7 +170,8 @@ def get_args():
     parser.add_argument(
         "--backbone_name",
         type=str,
-        choices=["mobilenetv3small_torchvision", "mobilenetv3small_timm"]
+        choices=["mobilenetv3small_torchvision", "mobilenetv3small_timm",
+                 "efficientnetb0_torchvision", "efficientnetb0_timm"]
     )
 
     parser.add_argument(

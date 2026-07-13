@@ -48,3 +48,11 @@ def get_moe_build(dataset_name: str):
         raise ValueError(f"Unknown dataset_name '{dataset_name}'. "
                          f"Chọn một trong: {list(_MOE)}")
     return importlib.import_module(_MOE[key]).build_datasets
+
+
+def get_embedding_datasets(dataset_name: str):
+    """Trả (train, validation, test) extract-embedding dataset cho backbone extractor."""
+    m = _classif_module(dataset_name)
+    return (m.extract_train_embedding_dataset,
+            m.extract_validation_embedding_dataset,
+            m.extract_test_embedding_dataset)

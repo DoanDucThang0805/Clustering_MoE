@@ -8,11 +8,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from datasets.plantdoc_dataset import (
-    extract_train_embedding_dataset,
-    extract_validation_embedding_dataset,
-    extract_test_embedding_dataset,
-)
+from datasets.registry import get_embedding_datasets
 from models.pretrain_baseline.model_registry import MODEL_REGISTRY
 
 
@@ -45,9 +41,24 @@ class TimmBackbone(nn.Module):
         return x
 
 
+class TimmEfficientNetBackbone(nn.Module):
+    """timm EfficientNet: forward_features (gồm conv_head/bn2) + global_pool -> 1280."""
+    def __init__(self, model):
+        super().__init__()
+        self.model   = model
+        self.flatten = nn.Flatten(1)
+
+    def forward(self, x):
+        x = self.model.forward_features(x)
+        x = self.model.global_pool(x)
+        return self.flatten(x)
+
+
 _BACKBONE_MAP = {
     "mobilenetv3small_torchvision": TorchvisionBackbone,
     "mobilenetv3small_timm":        TimmBackbone,
+    "efficientnetb0_torchvision":   TorchvisionBackbone,
+    "efficientnetb0_timm":          TimmEfficientNetBackbone,
 }
 
 ROOT_CHECKPOINT_DIR = Path(__file__).parents[3] / "checkpoints"
@@ -80,10 +91,12 @@ class ImageEmbedding:
         self.batch_size   = batch_size
         self.num_workers  = num_workers
 
+        # Chọn dataset theo dataset_name (registry) — không hardcode plantdoc
+        ds_train, ds_val, ds_test = get_embedding_datasets(dataset_name)
         self.dataset = (
-            extract_train_embedding_dataset      if split == "train"      else
-            extract_validation_embedding_dataset if split == "validation" else
-            extract_test_embedding_dataset
+            ds_train if split == "train"      else
+            ds_val   if split == "validation" else
+            ds_test
         )
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

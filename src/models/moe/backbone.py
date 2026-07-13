@@ -39,3 +39,37 @@ class Mobilenetv3SmallBackboneTimm(nn.Module):
         x = self.model.global_pool(x)
         x = torch.flatten(x, 1)
         return x
+
+
+class EfficientNetB0BackboneTorchvision(nn.Module):
+    def __init__(self, pretrained: bool):
+        super().__init__()
+        self.pretrained = pretrained
+        self.output_dim = 1280
+
+        if self.pretrained:
+            self.model = models.efficientnet_b0(weights=models.EfficientNet_B0_Weights.IMAGENET1K_V1)
+        else:
+            self.model = models.efficientnet_b0()
+
+
+    def forward(self, x):
+        x = self.model.features(x)
+        x = self.model.avgpool(x)
+        x = torch.flatten(x, 1)
+        return x
+
+
+class EfficientNetB0BackboneTimm(nn.Module):
+    def __init__(self, pretrained: bool):
+        super().__init__()
+        self.output_dim = 1280
+        self.model = timm.create_model(
+            model_name  = "efficientnet_b0.ra_in1k",
+            pretrained  = pretrained,
+            num_classes = 0,
+        )
+
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model(x)   # num_classes=0 -> (B, 1280) pooled features
