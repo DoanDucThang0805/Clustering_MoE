@@ -70,6 +70,12 @@ def get_args():
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
 
     parser.add_argument(
+        "--restart_id", type=int, default=0,
+        help="Restart thứ mấy của seed này (best-of-N chọn theo VAL). Đổi khởi tạo "
+             "(init + thứ tự batch), KHÔNG đổi data split (split cố định random_state=42)."
+    )
+
+    parser.add_argument(
         "--dataset_name",
         type=str,
         default="plantdoc",
@@ -200,9 +206,12 @@ def main():
     # Seed
     # -------------------------------------------------------------------------
 
-    set_seed(args.seed)
+    # restart_id đổi khởi tạo, KHÔNG đổi data split (split cố định trong LoadDataset)
+    init_seed = args.seed + 1000 * args.restart_id
+    set_seed(init_seed)
 
-    print(f"\nUsing seed: {args.seed}")
+    print(f"\nUsing seed: {args.seed}"
+          + (f" (restart #{args.restart_id}, init_seed={init_seed})" if args.restart_id else ""))
 
     # -------------------------------------------------------------------------
     # Device
@@ -233,7 +242,7 @@ def main():
     build_datasets = get_moe_build(args.dataset_name)
     train_dataset, validation_dataset, _ = build_datasets(use_context=args.use_context)
     g = torch.Generator()
-    g.manual_seed(args.seed)
+    g.manual_seed(init_seed)
     train_loader = DataLoader(
         train_dataset,
         batch_size=args.batch_size,

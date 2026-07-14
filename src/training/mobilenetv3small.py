@@ -9,7 +9,6 @@ import torch.nn as nn
 import torch.optim as optim
 from sklearn.utils.class_weight import compute_class_weight
 from datasets.registry import get_train_val
-from models.pretrain_baseline.mobilenetv3small import model
 
 from utils.baseline_trainer import Trainer
 
@@ -30,6 +29,9 @@ parse = ArgumentParser()
 parse.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
 parse.add_argument("--dataset_name", type=str, default="plantdoc",
                    help="plantdoc | plantvillage (chọn dataset + namespace checkpoint)")
+parse.add_argument("--model_dir_name", type=str, default="mobilenetv3small_torchvision",
+                   help="Tên thư mục model trong checkpoints (vd mobilenetv3small_torchvision_retrain2 "
+                        "cho bộ retrain riêng, không đè namespace baseline)")
 args = parse.parse_args()
 
 # Set seed BEFORE building datasets to ensure reproducible splits
@@ -37,6 +39,7 @@ set_seed(args.seed)
 
 # Build datasets AFTER seed is set, theo dataset_name (registry)
 train_dataset, validation_dataset = get_train_val(args.dataset_name)
+from models.pretrain_baseline.mobilenetv3small import model
 
 
 BATCH_SIZE = 32
@@ -88,7 +91,7 @@ trainer = Trainer(
         / "checkpoints"
         / args.dataset_name
         / "pretrain_baseline"
-        / "mobilenetv3small_torchvision"
+        / args.model_dir_name
         / f"seed_{args.seed}"
     )
 )

@@ -39,10 +39,24 @@ MNV3 = {"dense": (1.5261, 0.1229), "learned_gate_moe": (3.4845, 0.1269),
 
 
 def _latest(seed_dir: Path) -> Path:
+    """Chọn run có VALIDATION accuracy cao nhất (best-of-N restarts).
+
+    Seed chỉ có 1 run -> trả đúng run đó (hành vi cũ không đổi). TUYỆT ĐỐI không
+    chọn theo test (285 ảnh, 1 ảnh = 0.35 điểm -> chọn theo test là chọn nhiễu).
+    """
     c = sorted(glob.glob(str(seed_dir / "run_*" / "best_checkpoint.pth")))
     if not c:
         raise FileNotFoundError(f"No checkpoint under {seed_dir}")
-    return Path(c[-1])
+    if len(c) == 1:
+        return Path(c[0])
+    best_path, best_val = None, -float("inf")
+    for p in c:
+        ck = torch.load(p, map_location="cpu")
+        val = max(ck.get("val_acc_history", [-float("inf")]))
+        if val > best_val:
+            best_path, best_val = Path(p), val
+    print(f"    [best-of-{len(c)} theo VAL={best_val:.2f}%] {best_path.parent.name}")
+    return best_path
 
 
 def _params_m(model) -> float:

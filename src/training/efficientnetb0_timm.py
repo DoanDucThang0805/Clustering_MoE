@@ -28,12 +28,16 @@ def set_seed(seed=42):
 
 parse = ArgumentParser()
 parse.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+parse.add_argument("--restart_id", type=int, default=0,
+                   help="Restart thứ mấy của seed (best-of-N chọn theo VAL). Đổi khởi tạo, "
+                        "KHÔNG đổi data split (split cố định random_state=42).")
 parse.add_argument("--dataset_name", type=str, default="plantdoc",
                    help="plantdoc | plantvillage (chọn dataset + namespace checkpoint)")
 args = parse.parse_args()
 
-# Set seed BEFORE building datasets to ensure reproducible splits
-set_seed(args.seed)
+# restart_id đổi khởi tạo; data split cố định trong LoadDataset (random_state=42)
+init_seed = args.seed + 1000 * args.restart_id
+set_seed(init_seed)
 
 # Build datasets AFTER seed is set, theo dataset_name (registry)
 train_dataset, validation_dataset = get_train_val(args.dataset_name)
@@ -41,7 +45,7 @@ train_dataset, validation_dataset = get_train_val(args.dataset_name)
 
 BATCH_SIZE = 32
 generator = torch.Generator()
-generator.manual_seed(args.seed)
+generator.manual_seed(init_seed)
 
 train_ds = DataLoader(
     train_dataset,
