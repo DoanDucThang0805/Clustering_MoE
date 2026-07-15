@@ -1,8 +1,9 @@
 """
 CP5 — Cross-dataset results (PlantVillage) → cross_dataset_results.csv (PDF VIII.C).
 
-Tính per-seed accuracy/macro_f1/weighted_f1 trên PlantVillage test cho 3 model:
-  dense (lamb1k) · learned-gate MoE (torchvision) · Cluster-MoE cosine (torchvision).
+Tính per-seed accuracy/macro_f1/weighted_f1 trên PlantVillage test cho 3 model,
+tất cả cùng backbone torchvision (nguyên tắc đồng nhất backbone giữa dense/MoE/cluster):
+  dense · learned-gate MoE · Cluster-MoE cosine.
 Gộp thêm hàng PlantDoc (từ CP1 pretrained_backbone_results.csv) để so sánh 2 dataset.
 
 Schema (PDF VIII.C):
@@ -62,16 +63,17 @@ def _metrics(labels, preds) -> dict:
     )
 
 
-# ── dense lamb1k ──────────────────────────────────────────────
+# ── dense torchvision (cùng backbone với MoE/Cluster-MoE — nguyên tắc đồng nhất) ──
 def eval_dense(seed: int):
     from models.pretrain_baseline.model_registry import MODEL_REGISTRY
     from datasets.registry import get_test
+    import torch.nn as nn
     ckpt = torch.load(_latest(
-        ROOT / "checkpoints/plantvillage/pretrain_baseline/mobilenetv3small_timm_lamb1k" / f"seed_{seed}"),
+        ROOT / "checkpoints/plantvillage/pretrain_baseline/mobilenetv3small_torchvision" / f"seed_{seed}"),
         map_location=DEVICE)
     sd = ckpt["model_state_dict"]
-    model = MODEL_REGISTRY["mobilenetv3small_timm_lamb1k"]
-    model.reset_classifier(PV["num_classes"])
+    model = MODEL_REGISTRY["mobilenetv3small_torchvision"]
+    model.classifier[-1] = nn.Linear(model.classifier[-1].in_features, sd["classifier.3.weight"].shape[0])
     model.load_state_dict(sd)
     model.to(DEVICE).eval()
     loader = DataLoader(get_test("plantvillage"), batch_size=64, shuffle=False)
@@ -146,7 +148,7 @@ FIELDS = ["seed", "dataset", "num_classes", "num_train", "num_val", "num_test",
           "accuracy", "macro_f1", "weighted_f1", "params_m", "flops_g", "latency_ms"]
 
 MODELS = {"dense": eval_dense, "learned_gate_moe": eval_moe, "cluster_moe": eval_cluster}
-BACKBONE = {"dense": "mobilenetv3small_lamb1k", "learned_gate_moe": "mobilenetv3small_torchvision",
+BACKBONE = {"dense": "mobilenetv3small_torchvision", "learned_gate_moe": "mobilenetv3small_torchvision",
             "cluster_moe": "mobilenetv3small_torchvision"}
 
 

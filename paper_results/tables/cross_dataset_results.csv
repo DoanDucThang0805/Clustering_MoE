@@ -1,9 +1,9 @@
 seed,dataset,num_classes,num_train,num_val,num_test,backbone,initialization,model,routing,G,top_k,tau,accuracy,macro_f1,weighted_f1,params_m,flops_g,latency_ms
-42,plantvillage,10,12808,1601,1602,mobilenetv3small_lamb1k,imagenet_pretrained,dense,none,,,,0.9956,0.9945,0.9956,1.5281,0.1229,6.2622
-43,plantvillage,10,12808,1601,1602,mobilenetv3small_lamb1k,imagenet_pretrained,dense,none,,,,0.9956,0.996,0.9956,1.5281,0.1229,6.2622
-44,plantvillage,10,12808,1601,1602,mobilenetv3small_lamb1k,imagenet_pretrained,dense,none,,,,0.9944,0.9945,0.9944,1.5281,0.1229,6.2622
-45,plantvillage,10,12808,1601,1602,mobilenetv3small_lamb1k,imagenet_pretrained,dense,none,,,,0.9963,0.9961,0.9963,1.5281,0.1229,6.2622
-46,plantvillage,10,12808,1601,1602,mobilenetv3small_lamb1k,imagenet_pretrained,dense,none,,,,0.9944,0.9939,0.9944,1.5281,0.1229,6.2622
+42,plantvillage,10,12808,1601,1602,mobilenetv3small_torchvision,imagenet_pretrained,dense,none,,,,0.9944,0.9937,0.9944,1.5281,0.1229,6.2622
+43,plantvillage,10,12808,1601,1602,mobilenetv3small_torchvision,imagenet_pretrained,dense,none,,,,0.9975,0.9974,0.9975,1.5281,0.1229,6.2622
+44,plantvillage,10,12808,1601,1602,mobilenetv3small_torchvision,imagenet_pretrained,dense,none,,,,0.9969,0.9969,0.9969,1.5281,0.1229,6.2622
+45,plantvillage,10,12808,1601,1602,mobilenetv3small_torchvision,imagenet_pretrained,dense,none,,,,0.9938,0.9941,0.9938,1.5281,0.1229,6.2622
+46,plantvillage,10,12808,1601,1602,mobilenetv3small_torchvision,imagenet_pretrained,dense,none,,,,0.9944,0.9948,0.9944,1.5281,0.1229,6.2622
 42,plantvillage,10,12808,1601,1602,mobilenetv3small_torchvision,imagenet_pretrained,learned_gate_moe,learned,4,2,0.5,0.9938,0.9935,0.9938,7.4696,0.1269,8.2498
 43,plantvillage,10,12808,1601,1602,mobilenetv3small_torchvision,imagenet_pretrained,learned_gate_moe,learned,4,2,0.5,0.9944,0.9948,0.9944,7.4696,0.1269,8.2498
 44,plantvillage,10,12808,1601,1602,mobilenetv3small_torchvision,imagenet_pretrained,learned_gate_moe,learned,4,2,0.5,0.9938,0.9935,0.9938,7.4696,0.1269,8.2498
