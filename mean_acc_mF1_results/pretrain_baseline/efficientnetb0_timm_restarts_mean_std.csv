@@ -1,0 +1,4 @@
+training_run,n,accuracy_mean,accuracy_std,macro_f1_mean,macro_f1_std,weighted_f1_mean,weighted_f1_std
+1,5,0.8589,0.0163,0.8300,0.0219,0.8567,0.0159
+2,5,0.8639,0.0115,0.8339,0.0135,0.8613,0.0127
+3,5,0.8744,0.0165,0.8479,0.0176,0.8725,0.0154

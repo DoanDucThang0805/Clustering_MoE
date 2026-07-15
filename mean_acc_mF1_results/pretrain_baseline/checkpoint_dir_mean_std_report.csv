@@ -1,0 +1,11 @@
+checkpoint_dir,num_seeds,accuracy_mean,accuracy_std,macro_f1_mean,macro_f1_std
+efficientnetb0_timm,5,0.8604,0.0148,0.8300,0.0177
+efficientnetb0_torchvision,5,0.8681,0.0115,0.8436,0.0162
+mobilenetv3small_timm,5,0.8547,0.0110,0.8250,0.0169
+mobilenetv3small_timm_lamb1k,5,0.8175,0.0143,0.7832,0.0185
+mobilenetv3small_timm_lamb1k_retrain1,10,0.8182,0.0127,0.7845,0.0130
+mobilenetv3small_timm_lamb1k_retrain2,10,0.8221,0.0163,0.7888,0.0198
+mobilenetv3small_timm_retrain1,10,0.7172,0.0184,0.6810,0.0180
+mobilenetv3small_torchvision,10,0.8618,0.0172,0.8325,0.0230
+mobilenetv3small_torchvision_retrain1,10,0.8467,0.0171,0.8135,0.0219
+mobilenetv3small_torchvision_retrain2,10,0.8460,0.0129,0.8159,0.0134

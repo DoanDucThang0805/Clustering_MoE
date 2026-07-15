@@ -89,12 +89,18 @@ parser.add_argument("--centroid_backbone_type", type=str,
                     help="Backbone namespace containing the K-Means centroids")
 parser.add_argument("--backbone_name",type=str)
 parser.add_argument("--model_clustering_name",   type=str)
+parser.add_argument("--restart_id", type=int, default=0,
+                    help="Restart thứ mấy của seed này (best-of-N chọn theo VAL). "
+                         "Đổi khởi tạo, KHÔNG đổi data split (split cố định random_state=42).")
 args = parser.parse_args()
+
+# restart_id đổi khởi tạo, KHÔNG đổi data split (split cố định trong LoadDataset)
+init_seed = args.seed + 1000 * args.restart_id
 
 # ─────────────────────────────────────────────
 # Seed → then import datasets
 # ─────────────────────────────────────────────
-set_seed(args.seed)
+set_seed(init_seed)
 
 from datasets.registry import get_train_val
 train_dataset, validation_dataset = get_train_val(args.dataset_name)
@@ -103,7 +109,7 @@ train_dataset, validation_dataset = get_train_val(args.dataset_name)
 # DataLoaders
 # ─────────────────────────────────────────────
 generator = torch.Generator()
-generator.manual_seed(args.seed)
+generator.manual_seed(init_seed)
 
 train_loader = DataLoader(
     train_dataset,
