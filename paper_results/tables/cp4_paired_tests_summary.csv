@@ -1,0 +1,7 @@
+Dataset,Comparison,Metric,Mean Δ,p_t,p_w,p_Holm,p_BH
+PlantDoc,Cluster-MoE vs MobileNetV3-Small baseline,Accuracy,0.0267,0.0004,0.0020,0.0026,0.0022
+PlantDoc,Cluster-MoE vs Learned-gate MoE,Accuracy,0.0147,0.0014,0.0059,0.0058,0.0029
+PlantDoc,Learned-gate MoE vs MobileNetV3-Small baseline,Accuracy,0.0119,0.0381,0.0352,0.0761,0.0457
+PlantDoc,Cluster-MoE vs MobileNetV3-Small baseline,Macro-F1,0.0293,0.0007,0.0020,0.0037,0.0022
+PlantDoc,Cluster-MoE vs Learned-gate MoE,Macro-F1,0.0198,0.0042,0.0039,0.0127,0.0063
+PlantDoc,Learned-gate MoE vs MobileNetV3-Small baseline,Macro-F1,0.0095,0.0974,0.1602,0.0974,0.0974
