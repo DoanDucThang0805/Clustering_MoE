@@ -245,7 +245,7 @@ def main() -> None:
         n = len(v["accuracy"])
         pa, pt, fl = meta[m]
         cells = "  ".join(
-            f"{st.mean(v[k]):.4f}±{st.pstdev(v[k]):.4f}"
+            f"{st.mean(v[k]):.4f}±{st.stdev(v[k]):.4f}"
             for k in ("accuracy", "macro_f1", "weighted_f1")
         )
         print(f"{m:<18}{n:>3}  {cells}  {pa:>9} {pt:>9} {fl:>9}")

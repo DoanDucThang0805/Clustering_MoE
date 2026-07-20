@@ -6,6 +6,7 @@ from .efficientnetb0_timm import model as efficientnetb0_timm
 
 MODEL_REGISTRY = {
     "mobilenetv3small_torchvision": mobilenetv3small_torchvision,
+    "mobilenetv3small_torchvision_retrain1": mobilenetv3small_torchvision,
     "mobilenetv3small_torchvision_retrain2": mobilenetv3small_torchvision,
     "mobilenetv3small_timm": mobilenetv3small_timm,
     "mobilenetv3small_timm_retrain1": mobilenetv3small_timm,
