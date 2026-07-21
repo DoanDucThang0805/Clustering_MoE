@@ -1,0 +1,12 @@
+Variable,Symbol,Description / Calculation
+Dataset,—,The evaluation dataset shared by all paired models (PlantDoc test set).
+Comparison,A vs. B,The ordered model pair; all reported differences are computed as Model A minus Model B.
+Metric,m,The performance metric evaluated independently for each seed: Accuracy or Macro-F1.
+Number of seeds,N,The number of matched random seeds used by each paired test: N = 10 (seeds 42–51).
+Paired difference,d_s,The within-seed difference d_s = m_s^(A) - m_s^(B); a positive value favors Model A.
+Mean Delta,\bar{\Delta},The mean paired difference: \bar{\Delta} = (1/N) \sum_{s=1}^{N} d_s.
+Paired t-test p-value,p_t,The unadjusted two-sided paired Student's t-test p-value for H0: E[d_s] = 0.
+Wilcoxon p-value,p_w,The unadjusted two-sided Wilcoxon signed-rank p-value applied to the paired differences d_s.
+Holm-adjusted p-value,p_{\mathrm{Holm}},The Holm–Bonferroni-adjusted p_t across all six primary tests (3 model pairs × 2 metrics); controls the family-wise error rate.
+BH-adjusted p-value,p_{\mathrm{BH}},The Benjamini–Hochberg-adjusted p_t across all six primary tests (3 model pairs × 2 metrics); controls the false discovery rate.
+Significance level,\alpha,The decision threshold is \alpha = 0.05; an adjusted p-value below 0.05 is considered statistically significant.

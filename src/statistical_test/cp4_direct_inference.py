@@ -17,6 +17,9 @@ chỉ định (KHÔNG đọc lại từ pretrained_backbone_results.csv của CP
 Chỉ xuất một bảng reviewer-facing:
     paper_results/tables/cp4_paired_tests_summary.csv
 
+Và một bảng chú giải các ký hiệu/cột thống kê:
+    paper_results/tables/cp4_statistical_parameters_explanation.csv
+
 Chạy từ src/:
     python -m statistical_test.cp4_direct_inference
 """
@@ -57,6 +60,98 @@ METRIC_LABEL = {"accuracy": "Accuracy", "macro_f1": "Macro-F1"}
 CP4_PAIRS = (("cluster_moe", "dense"), ("cluster_moe", "learned_gate_moe"),
              ("learned_gate_moe", "dense"))
 CP4_METRICS = ("accuracy", "macro_f1")
+
+EXPLANATION_FIELDS = ["Variable", "Symbol", "Description / Calculation"]
+EXPLANATION_ROWS = [
+    {
+        "Variable": "Dataset",
+        "Symbol": "—",
+        "Description / Calculation": (
+            "The evaluation dataset shared by all paired models "
+            "(PlantDoc test set)."
+        ),
+    },
+    {
+        "Variable": "Comparison",
+        "Symbol": "A vs. B",
+        "Description / Calculation": (
+            "The ordered model pair; all reported differences are computed "
+            "as Model A minus Model B."
+        ),
+    },
+    {
+        "Variable": "Metric",
+        "Symbol": "m",
+        "Description / Calculation": (
+            "The performance metric evaluated independently for each seed: "
+            "Accuracy or Macro-F1."
+        ),
+    },
+    {
+        "Variable": "Number of seeds",
+        "Symbol": "N",
+        "Description / Calculation": (
+            "The number of matched random seeds used by each paired test: "
+            "N = 10 (seeds 42–51)."
+        ),
+    },
+    {
+        "Variable": "Paired difference",
+        "Symbol": "d_s",
+        "Description / Calculation": (
+            "The within-seed difference d_s = m_s^(A) - m_s^(B); "
+            "a positive value favors Model A."
+        ),
+    },
+    {
+        "Variable": "Mean Delta",
+        "Symbol": "\\bar{\\Delta}",
+        "Description / Calculation": (
+            "The mean paired difference: \\bar{\\Delta} = "
+            "(1/N) \\sum_{s=1}^{N} d_s."
+        ),
+    },
+    {
+        "Variable": "Paired t-test p-value",
+        "Symbol": "p_t",
+        "Description / Calculation": (
+            "The unadjusted two-sided paired Student's t-test p-value for "
+            "H0: E[d_s] = 0."
+        ),
+    },
+    {
+        "Variable": "Wilcoxon p-value",
+        "Symbol": "p_w",
+        "Description / Calculation": (
+            "The unadjusted two-sided Wilcoxon signed-rank p-value applied "
+            "to the paired differences d_s."
+        ),
+    },
+    {
+        "Variable": "Holm-adjusted p-value",
+        "Symbol": "p_{\\mathrm{Holm}}",
+        "Description / Calculation": (
+            "The Holm–Bonferroni-adjusted p_t across all six primary tests "
+            "(3 model pairs × 2 metrics); controls the family-wise error rate."
+        ),
+    },
+    {
+        "Variable": "BH-adjusted p-value",
+        "Symbol": "p_{\\mathrm{BH}}",
+        "Description / Calculation": (
+            "The Benjamini–Hochberg-adjusted p_t across all six primary tests "
+            "(3 model pairs × 2 metrics); controls the false discovery rate."
+        ),
+    },
+    {
+        "Variable": "Significance level",
+        "Symbol": "\\alpha",
+        "Description / Calculation": (
+            "The decision threshold is \\alpha = 0.05; an adjusted p-value "
+            "below 0.05 is considered statistically significant."
+        ),
+    },
+]
 
 
 def _best_checkpoint(seed_dir: Path) -> Path:
@@ -196,10 +291,21 @@ def main() -> None:
 
     table_path = out_dir / "cp4_paired_tests_summary.csv"
     with open(table_path, "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=table_fields)
+        w = csv.DictWriter(f, fieldnames=table_fields, lineterminator="\n")
         w.writeheader()
         w.writerows(table_rows)
     print(f"Saved -> {table_path}")
+
+    explanation_path = out_dir / "cp4_statistical_parameters_explanation.csv"
+    with open(explanation_path, "w", newline="") as f:
+        w = csv.DictWriter(
+            f,
+            fieldnames=EXPLANATION_FIELDS,
+            lineterminator="\n",
+        )
+        w.writeheader()
+        w.writerows(EXPLANATION_ROWS)
+    print(f"Saved -> {explanation_path}")
 
 
 if __name__ == "__main__":
