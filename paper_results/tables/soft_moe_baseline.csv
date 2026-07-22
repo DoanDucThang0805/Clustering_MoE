@@ -1,0 +1,16 @@
+seed,dataset,backbone,model,num_experts,routing_type,accuracy,macro_f1,weighted_f1,params_m,flops_g,latency_ms,params_total_m
+42,plantdoc,mobilenetv3small_torchvision,soft_moe,4,learned_soft,0.8702,0.8507,0.8674,5.8511,0.1316,,5.8511
+43,plantdoc,mobilenetv3small_torchvision,soft_moe,4,learned_soft,0.8632,0.8365,0.8602,5.8511,0.1316,,5.8511
+44,plantdoc,mobilenetv3small_torchvision,soft_moe,4,learned_soft,0.8561,0.8226,0.855,5.8511,0.1316,,5.8511
+45,plantdoc,mobilenetv3small_torchvision,soft_moe,4,learned_soft,0.8351,0.7985,0.833,5.8511,0.1316,,5.8511
+46,plantdoc,mobilenetv3small_torchvision,soft_moe,4,learned_soft,0.8281,0.7939,0.8251,5.8511,0.1316,,5.8511
+42,plantdoc,mobilenetv3small_torchvision,learned_gate_moe,4,learned_topk,0.8456,0.8108,0.8413,3.4845,0.1269,8.2498,5.8535
+43,plantdoc,mobilenetv3small_torchvision,learned_gate_moe,4,learned_topk,0.8491,0.8171,0.8471,3.4845,0.1269,8.2498,5.8535
+44,plantdoc,mobilenetv3small_torchvision,learned_gate_moe,4,learned_topk,0.8526,0.8168,0.8496,3.4845,0.1269,8.2498,5.8535
+45,plantdoc,mobilenetv3small_torchvision,learned_gate_moe,4,learned_topk,0.8632,0.8335,0.8599,3.4845,0.1269,8.2498,5.8535
+46,plantdoc,mobilenetv3small_torchvision,learned_gate_moe,4,learned_topk,0.8702,0.8398,0.8654,3.4845,0.1269,8.2498,5.8535
+42,plantdoc,mobilenetv3small_torchvision,cluster_moe,4,cosine_topk,0.8702,0.8372,0.8681,3.4772,0.1268,7.9588,5.8438
+43,plantdoc,mobilenetv3small_torchvision,cluster_moe,4,cosine_topk,0.8632,0.8351,0.8618,3.4772,0.1268,7.9588,5.8438
+44,plantdoc,mobilenetv3small_torchvision,cluster_moe,4,cosine_topk,0.8737,0.8528,0.8728,3.4772,0.1268,7.9588,5.8438
+45,plantdoc,mobilenetv3small_torchvision,cluster_moe,4,cosine_topk,0.8702,0.8423,0.8682,3.4772,0.1268,7.9588,5.8438
+46,plantdoc,mobilenetv3small_torchvision,cluster_moe,4,cosine_topk,0.8667,0.837,0.8647,3.4772,0.1268,7.9588,5.8438

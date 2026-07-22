@@ -1,4 +1,4 @@
-dataset,backbone,initialization,model,routing,G,top_k,tau,checkpoint_protocol,n_seeds,accuracy_mean_std,macro_f1_mean_std,weighted_f1_mean_std,params_m
-plantdoc,efficientnetb0_timm,imagenet_pretrained,dense,none,,,,train_1,5,0.8589 ± 0.0164,0.8300 ± 0.0219,0.8567 ± 0.0159,4.0178
-plantdoc,efficientnetb0_timm,imagenet_pretrained,learned_gate_moe,learned,4,2,0.5,train_2,5,0.8604 ± 0.0160,0.8320 ± 0.0163,0.8586 ± 0.0158,14.8955
-plantdoc,efficientnetb0_timm,imagenet_pretrained,cluster_moe,cosine,4,2,0.5,dense_aligned_retrain2,5,0.8702 ± 0.0082,0.8440 ± 0.0101,0.8693 ± 0.0079,14.8759
+dataset,backbone,initialization,model,routing,G,top_k,tau,n_seeds,accuracy_mean_std,macro_f1_mean_std,weighted_f1_mean_std,params_m,active_params_m
+plantdoc,efficientnetb0_timm,imagenet_pretrained,dense,none,,,,5,0.8589 ± 0.0164,0.8300 ± 0.0219,0.8567 ± 0.0159,4.0178,4.0178
+plantdoc,efficientnetb0_timm,imagenet_pretrained,learned_gate_moe,learned,4,2,0.5,5,0.8604 ± 0.0160,0.8320 ± 0.0163,0.8586 ± 0.0158,14.8955,9.6439
+plantdoc,efficientnetb0_timm,imagenet_pretrained,cluster_moe,cosine,4,2,0.5,5,0.8702 ± 0.0082,0.8440 ± 0.0101,0.8693 ± 0.0079,14.8759,9.6243

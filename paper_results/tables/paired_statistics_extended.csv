@@ -1,0 +1,7 @@
+metric,model_a,model_b,n_seeds,mean_a,mean_b,mean_diff,std_diff,ci95_low,ci95_high,paired_t_p,wilcoxon_p,holm_p,bh_p,effect_size_dz
+accuracy,cluster_moe,dense,10,0.8726,0.846,0.0267,0.0156,0.0155,0.0378,0.0004,0.002,0.0026,0.0022,1.707
+accuracy,cluster_moe,learned_gate_moe,10,0.8726,0.8579,0.0147,0.0103,0.0074,0.0221,0.0014,0.0059,0.0058,0.0029,1.4303
+accuracy,learned_gate_moe,dense,10,0.8579,0.846,0.0119,0.0155,0.0008,0.023,0.0381,0.0352,0.0761,0.0457,0.768
+macro_f1,cluster_moe,dense,10,0.8452,0.8159,0.0293,0.0186,0.016,0.0426,0.0007,0.002,0.0037,0.0022,1.5785
+macro_f1,cluster_moe,learned_gate_moe,10,0.8452,0.8254,0.0198,0.0165,0.008,0.0317,0.0042,0.0039,0.0127,0.0063,1.2013
+macro_f1,learned_gate_moe,dense,10,0.8254,0.8159,0.0095,0.0162,-0.0021,0.0211,0.0974,0.1602,0.0974,0.0974,0.5849

@@ -45,8 +45,15 @@ MOE_ROOT = (ROOT / "checkpoints/plantdoc/moe_temperature_0.5_pretrain_backbone"
 CLUSTER_ROOT = (ROOT / "checkpoints/plantdoc/clustering_moe/dense_aligned_pretrain_backbone_retrain2"
                 / "efficientnetb0_timm_backbone" / "kmeans" / "temperature_0.5" / "G4_cosine_top2")
 
-# params_m giữ nguyên giá trị đã có trong file hiện tại (kiến trúc không đổi theo seed/run)
+# params_m là tổng tham số từ sum(numel). active_params_m được đếm chính xác
+# theo kiến trúc: toàn bộ shared/router/classifier cộng đúng top-k expert.
+# THOP chỉ dùng để đo FLOPs vì bộ đếm params của THOP có thể bỏ sót module.
 PARAMS_M = {"dense": 4.0178, "learned_gate_moe": 14.8955, "cluster_moe": 14.8759}
+ACTIVE_PARAMS_M = {
+    "dense": 4.0178,
+    "learned_gate_moe": 9.6439,
+    "cluster_moe": 9.6243,
+}
 ROUTING = {"dense": "none", "learned_gate_moe": "learned", "cluster_moe": "cosine"}
 
 
@@ -180,15 +187,10 @@ def main() -> None:
 
     summary_fields = [
         "dataset", "backbone", "initialization", "model", "routing",
-        "G", "top_k", "tau", "checkpoint_protocol", "n_seeds",
+        "G", "top_k", "tau", "n_seeds",
         "accuracy_mean_std", "macro_f1_mean_std", "weighted_f1_mean_std",
-        "params_m",
+        "params_m", "active_params_m",
     ]
-    protocol = {
-        "dense": "train_1",
-        "learned_gate_moe": "train_2",
-        "cluster_moe": "dense_aligned_retrain2",
-    }
     summary_rows = []
     for mdl in EVAL_FN:
         model_rows = [r for r in new_rows if r["model"] == mdl]
@@ -201,9 +203,9 @@ def main() -> None:
             "G": 4 if mdl != "dense" else "",
             "top_k": 2 if mdl != "dense" else "",
             "tau": 0.5 if mdl != "dense" else "",
-            "checkpoint_protocol": protocol[mdl],
             "n_seeds": len(model_rows),
             "params_m": PARAMS_M[mdl],
+            "active_params_m": ACTIVE_PARAMS_M[mdl],
         }
         for metric in ("accuracy", "macro_f1", "weighted_f1"):
             values = [float(r[metric]) for r in model_rows]

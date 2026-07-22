@@ -1,0 +1,7 @@
+comparison,metric,alpha,power_target,pilot_mean_diff,pilot_std_diff,effect_size_dz,required_n_uncorrected,required_n_holm,current_n,decision
+cluster_moe_vs_dense,accuracy,0.05,0.8,0.0267,0.0156,1.707,3,4,10,sufficient
+cluster_moe_vs_learned_gate_moe,accuracy,0.05,0.8,0.0147,0.0103,1.4303,4,6,10,sufficient
+learned_gate_moe_vs_dense,accuracy,0.05,0.8,0.0119,0.0155,0.768,14,18,10,insufficient - report measured gain under protocol
+cluster_moe_vs_dense,macro_f1,0.05,0.8,0.0293,0.0186,1.5785,4,5,10,sufficient
+cluster_moe_vs_learned_gate_moe,macro_f1,0.05,0.8,0.0198,0.0165,1.2013,6,8,10,sufficient
+learned_gate_moe_vs_dense,macro_f1,0.05,0.8,0.0095,0.0162,0.5849,23,31,10,insufficient - report measured gain under protocol
