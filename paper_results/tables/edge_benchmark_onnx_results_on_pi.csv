@@ -1,0 +1,5 @@
+model_name,model_size_mb,cpu_peak_memory_mb,cpu_inference_time_ms
+mobilenetv3_small_baseline,6.1006,81.4219,6.26222
+mobilenetv3_small_moe,22.7311,98.8125,8.24976
+cluster_moe,22.7014,100.1719,7.95883
+hybrid_moe,22.7563,116.0156,8.25911
